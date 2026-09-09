@@ -173,6 +173,7 @@ let previousView = 'categories';      // Geri düyməsi üçün əvvəlki səhif
 let activeSectionId = null;         // Aktiv əsas bölmənin ID-si (1-dən 11-ə)
 let activeSubcategoryId = null;     // Aktiv alt kateqoriyanın ID-si
 let activeSearchQuery = '';          // Axtarış mətni
+let cartReturnState = null;
 let cart = loadCartFromStorage();    // Səbət obyekti
 
 // Müvəqqəti porsiya sayğacları
@@ -807,6 +808,15 @@ function buildRouteHash(viewName, params = {}) {
 }
 
 function navigateTo(viewName, params = {}, pushHistory = true) {
+  if (viewName === 'cart' && currentView !== 'cart') {
+    cartReturnState = {
+      view: currentView,
+      sectionId: activeSectionId,
+      subcategoryId: activeSubcategoryId,
+      searchQuery: activeSearchQuery
+    };
+  }
+
   if (currentView !== viewName) {
     previousView = currentView;
   }
@@ -859,6 +869,35 @@ function navigateTo(viewName, params = {}, pushHistory = true) {
 
 window.showView = function(viewName, params = {}) {
   navigateTo(viewName, params, true);
+};
+
+window.returnToMenu = function() {
+  const returnState = cartReturnState || {
+    view: 'categories',
+    sectionId: null,
+    subcategoryId: null,
+    searchQuery: ''
+  };
+
+  if (returnState.view === 'subcategories' && returnState.sectionId) {
+    activeSectionId = Number(returnState.sectionId);
+    renderSubcategories(activeSectionId);
+    navigateTo('subcategories', { sectionId: activeSectionId }, true);
+  } else if (returnState.view === 'items' && returnState.sectionId && returnState.subcategoryId) {
+    activeSectionId = Number(returnState.sectionId);
+    activeSubcategoryId = returnState.subcategoryId;
+    renderCategoryItems();
+    navigateTo('items', {
+      sectionId: activeSectionId,
+      subcategoryId: activeSubcategoryId
+    }, true);
+  } else if (returnState.view === 'search' && returnState.searchQuery) {
+    activeSearchQuery = returnState.searchQuery;
+    performSearch(activeSearchQuery);
+    navigateTo('search', { searchQuery: activeSearchQuery }, true);
+  } else {
+    navigateTo('categories', {}, true);
+  }
 };
 
 /**
