@@ -837,7 +837,14 @@ function performSearch(query) {
  * 9. ROUTING, NAVİQASİYA VƏ TARİXÇƏ İDARƏSİ (Router & Browser History Engine)
  * ---------------------------------------------------------------------------- */
 let isNavigatingFromPopState = false;
+const rootHistoryBaseState = { view: 'categories', rootBase: true };
+const rootHistoryGuardState = { view: 'categories', rootGuard: true };
 const scrollPositionsStorageKey = 'shaki_garden_scroll_positions';
+
+function armRootHistoryGuard() {
+  window.history.replaceState(rootHistoryBaseState, '', '#categories');
+  window.history.pushState(rootHistoryGuardState, '', '#categories');
+}
 
 function getSavedScrollPositions() {
   try {
@@ -994,7 +1001,7 @@ window.returnToMenu = function() {
     window.history.replaceState({ view: 'search', searchQuery: activeSearchQuery }, '', `#search?q=${encodeURIComponent(activeSearchQuery)}`);
   } else {
     navigateTo('categories', {}, false);
-    window.history.replaceState({ view: 'categories' }, '', '#categories');
+    armRootHistoryGuard();
   }
 
   window.requestAnimationFrame(() => {
@@ -1077,6 +1084,7 @@ function goToHomePage() {
   }
   navigateTo('categories', {}, true);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  armRootHistoryGuard();
 }
 window.goToHomePage = goToHomePage;
 
@@ -1296,11 +1304,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Mobil cihazların geri jesti və ya brauzerin Geri/İrəli düymələri (popstate)
-  window.addEventListener('popstate', () => {
+  window.addEventListener('popstate', (event) => {
     if (orderModalBackdrop && orderModalBackdrop.classList.contains('open')) {
       closeCheckoutModal();
       return;
     }
+
+    if (event.state?.rootBase && currentView === 'categories') {
+      armRootHistoryGuard();
+      return;
+    }
+
     isNavigatingFromPopState = true;
     applyRouteFromURL();
     isNavigatingFromPopState = false;
@@ -1328,6 +1342,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.location.hash && window.location.hash !== '#categories') {
     applyRouteFromURL();
   } else {
-    window.history.replaceState({ view: 'categories' }, '', '#categories');
+    armRootHistoryGuard();
   }
 });
