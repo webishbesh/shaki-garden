@@ -934,7 +934,8 @@ window.returnToMenu = function() {
   if (returnState.view === 'subcategories' && returnState.sectionId) {
     activeSectionId = Number(returnState.sectionId);
     renderSubcategories(activeSectionId);
-    navigateTo('subcategories', { sectionId: activeSectionId }, true);
+    navigateTo('subcategories', { sectionId: activeSectionId }, false);
+    window.history.replaceState({ view: 'subcategories', sectionId: activeSectionId }, '', `#section-${activeSectionId}`);
   } else if (returnState.view === 'items' && returnState.sectionId && returnState.subcategoryId) {
     activeSectionId = Number(returnState.sectionId);
     activeSubcategoryId = returnState.subcategoryId;
@@ -942,13 +943,20 @@ window.returnToMenu = function() {
     navigateTo('items', {
       sectionId: activeSectionId,
       subcategoryId: activeSubcategoryId
-    }, true);
+    }, false);
+    window.history.replaceState({
+      view: 'items',
+      sectionId: activeSectionId,
+      subcategoryId: activeSubcategoryId
+    }, '', `#section-${activeSectionId}/sub-${activeSubcategoryId}`);
   } else if (returnState.view === 'search' && returnState.searchQuery) {
     activeSearchQuery = returnState.searchQuery;
     performSearch(activeSearchQuery);
-    navigateTo('search', { searchQuery: activeSearchQuery }, true);
+    navigateTo('search', { searchQuery: activeSearchQuery }, false);
+    window.history.replaceState({ view: 'search', searchQuery: activeSearchQuery }, '', `#search?q=${encodeURIComponent(activeSearchQuery)}`);
   } else {
-    navigateTo('categories', {}, true);
+    navigateTo('categories', {}, false);
+    window.history.replaceState({ view: 'categories' }, '', '#categories');
   }
 
   window.requestAnimationFrame(() => {
@@ -1048,13 +1056,7 @@ function handleBackAction() {
   if (window.history.length > 1 && hash && hash !== '#categories') {
     window.history.back();
   } else {
-    if (currentView === 'items') {
-      if (activeSectionId) {
-        openMainSection(activeSectionId, true);
-      } else {
-        navigateTo('categories', {}, true);
-      }
-    } else if (currentView === 'subcategories' || currentView === 'cart' || currentView === 'search') {
+    if (currentView === 'items' || currentView === 'subcategories' || currentView === 'cart' || currentView === 'search') {
       navigateTo('categories', {}, true);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
