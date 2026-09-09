@@ -870,7 +870,28 @@ function restoreScrollPosition(routeHash) {
   } catch (error) {
     savedPosition = 0;
   }
-  window.scrollTo({ top: savedPosition, behavior: 'auto' });
+  scrollToInstantly(savedPosition);
+}
+
+function scrollToInstantly(scrollY) {
+  const htmlScrollBehavior = document.documentElement.style.scrollBehavior;
+  const bodyScrollBehavior = document.body.style.scrollBehavior;
+  document.documentElement.style.scrollBehavior = 'auto';
+  document.body.style.scrollBehavior = 'auto';
+  window.scrollTo(0, scrollY);
+  document.documentElement.style.scrollBehavior = htmlScrollBehavior;
+  document.body.style.scrollBehavior = bodyScrollBehavior;
+}
+
+function setupMobileCartTouchLock() {
+  const cartWrap = document.querySelector('.cart-wrap');
+  if (!cartWrap) return;
+
+  cartWrap.addEventListener('touchmove', (event) => {
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      event.preventDefault();
+    }
+  }, { passive: false });
 }
 
 function buildRouteHash(viewName, params = {}) {
@@ -893,7 +914,7 @@ function buildRouteHash(viewName, params = {}) {
   return '#categories';
 }
 
-function navigateTo(viewName, params = {}, pushHistory = true) {
+function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = false) {
   const currentRouteHash = window.location.hash || '#categories';
   const targetRouteHash = buildRouteHash(viewName, params);
 
@@ -959,6 +980,8 @@ function navigateTo(viewName, params = {}, pushHistory = true) {
 
   if (isNavigatingFromPopState) {
     window.requestAnimationFrame(() => restoreScrollPosition(targetRouteHash));
+  } else if (restoreScroll) {
+    scrollToInstantly(params.scrollY || 0);
   } else {
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
@@ -979,7 +1002,7 @@ window.returnToMenu = function() {
   if (returnState.view === 'subcategories' && returnState.sectionId) {
     activeSectionId = Number(returnState.sectionId);
     renderSubcategories(activeSectionId);
-    navigateTo('subcategories', { sectionId: activeSectionId }, false);
+    navigateTo('subcategories', { sectionId: activeSectionId, scrollY: returnState.scrollY }, false, true);
     window.history.replaceState({ view: 'subcategories', sectionId: activeSectionId }, '', `#section-${activeSectionId}`);
   } else if (returnState.view === 'items' && returnState.sectionId && returnState.subcategoryId) {
     activeSectionId = Number(returnState.sectionId);
@@ -987,8 +1010,9 @@ window.returnToMenu = function() {
     renderCategoryItems();
     navigateTo('items', {
       sectionId: activeSectionId,
-      subcategoryId: activeSubcategoryId
-    }, false);
+      subcategoryId: activeSubcategoryId,
+      scrollY: returnState.scrollY
+    }, false, true);
     window.history.replaceState({
       view: 'items',
       sectionId: activeSectionId,
@@ -997,16 +1021,13 @@ window.returnToMenu = function() {
   } else if (returnState.view === 'search' && returnState.searchQuery) {
     activeSearchQuery = returnState.searchQuery;
     performSearch(activeSearchQuery);
-    navigateTo('search', { searchQuery: activeSearchQuery }, false);
+    navigateTo('search', { searchQuery: activeSearchQuery, scrollY: returnState.scrollY }, false, true);
     window.history.replaceState({ view: 'search', searchQuery: activeSearchQuery }, '', `#search?q=${encodeURIComponent(activeSearchQuery)}`);
   } else {
-    navigateTo('categories', {}, false);
+    navigateTo('categories', { scrollY: returnState.scrollY }, false, true);
     armRootHistoryGuard();
   }
 
-  window.requestAnimationFrame(() => {
-    window.scrollTo({ top: returnState.scrollY || 0, behavior: 'auto' });
-  });
 };
 
 /**
@@ -1272,6 +1293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   setupContainedScroll(sideDrawer);
   setupContainedScroll(document.querySelector('.order-modal'));
+  setupMobileCartTouchLock();
 
   if (menuBtn) menuBtn.addEventListener('click', openDrawer);
   if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);

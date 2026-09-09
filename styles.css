@@ -964,6 +964,7 @@ main {
   margin: 10px auto 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .cart-header-title {
@@ -998,7 +999,7 @@ main {
 
 .table-responsive {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -1703,6 +1704,7 @@ body.view-cart-active .fab {
     min-height: calc(100dvh - 62px);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
 
   .cart-header-title {
