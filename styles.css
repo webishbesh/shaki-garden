@@ -109,6 +109,7 @@ header.site {
   background: rgba(15, 15, 15, 0.38);
   opacity: 0;
   pointer-events: none;
+  overscroll-behavior: none;
   transition: opacity 0.22s ease;
 }
 
@@ -123,6 +124,8 @@ header.site {
   max-width: 420px;
   padding: 28px 24px;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   background: var(--paper);
   border-right: 1px solid var(--line);
   box-shadow: 10px 0 30px rgba(28, 28, 28, 0.12);
@@ -1328,6 +1331,7 @@ table.cart-table td.col-total {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  overscroll-behavior: none;
 }
 
 .modal-backdrop.open {
@@ -1343,6 +1347,8 @@ table.cart-table td.col-total {
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-lg);
   padding: 28px 30px;
   position: relative;

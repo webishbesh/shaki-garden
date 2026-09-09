@@ -259,15 +259,72 @@ const modalServiceEl = document.getElementById('modalService');
 const modalTotalEl = document.getElementById('modalTotal');
 const orderCodeValEl = document.getElementById('orderCodeVal');
 const newOrderBtn = document.getElementById('newOrderBtn');
+let scrollLockDepth = 0;
+let lockedScrollTop = 0;
+
+function lockBodyScroll() {
+  scrollLockDepth += 1;
+  if (scrollLockDepth > 1) return;
+
+  lockedScrollTop = window.scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${lockedScrollTop}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.overflow = 'hidden';
+}
+
+function unlockBodyScroll() {
+  scrollLockDepth = Math.max(0, scrollLockDepth - 1);
+  if (scrollLockDepth > 0) return;
+
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.overflow = '';
+  window.scrollTo(0, lockedScrollTop);
+}
+
+function keepOverlayScrollInside(container) {
+  if (!container) return;
+  let touchStartY = 0;
+
+  container.addEventListener('wheel', (event) => {
+    const atTop = container.scrollTop <= 0;
+    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+    const movingPastTop = event.deltaY < 0 && atTop;
+    const movingPastBottom = event.deltaY > 0 && atBottom;
+
+    if (movingPastTop || movingPastBottom) event.preventDefault();
+  }, { passive: false });
+
+  container.addEventListener('touchstart', (event) => {
+    touchStartY = event.touches[0]?.clientY || 0;
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (event) => {
+    const currentY = event.touches[0]?.clientY || touchStartY;
+    const deltaY = currentY - touchStartY;
+    const atTop = container.scrollTop <= 0;
+    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
+    const movingPastTop = deltaY > 0 && atTop;
+    const movingPastBottom = deltaY < 0 && atBottom;
+
+    if (movingPastTop || movingPastBottom) event.preventDefault();
+  }, { passive: false });
+}
 
 function closeDrawer() {
   document.body.classList.remove('drawer-open');
   if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'true');
+  unlockBodyScroll();
 }
 
 function openDrawer() {
   document.body.classList.add('drawer-open');
   if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'false');
+  lockBodyScroll();
 }
 
 function renderDrawerSections() {
@@ -1086,14 +1143,14 @@ window.openCheckoutModal = function() {
 
   if (orderModalBackdrop) {
     orderModalBackdrop.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockBodyScroll();
   }
 };
 
 window.closeCheckoutModal = function() {
   if (orderModalBackdrop) {
     orderModalBackdrop.classList.remove('open');
-    document.body.style.overflow = '';
+    unlockBodyScroll();
   }
 };
 
@@ -1163,6 +1220,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (menuBtn) menuBtn.addEventListener('click', openDrawer);
   if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
   if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
+    keepOverlayScrollInside(sideDrawer);
+    keepOverlayScrollInside(document.querySelector('.order-modal'));
   if (drawerMenuToggle) {
     drawerMenuToggle.addEventListener('click', () => {
       const expanded = drawerMenuGroup.classList.toggle('expanded');
