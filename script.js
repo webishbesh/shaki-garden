@@ -837,6 +837,34 @@ function performSearch(query) {
  * 9. ROUTING, NAVİQASİYA VƏ TARİXÇƏ İDARƏSİ (Router & Browser History Engine)
  * ---------------------------------------------------------------------------- */
 let isNavigatingFromPopState = false;
+const scrollPositionsStorageKey = 'shaki_garden_scroll_positions';
+
+function getSavedScrollPositions() {
+  try {
+    return JSON.parse(sessionStorage.getItem(scrollPositionsStorageKey) || '{}');
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveScrollPosition(routeHash = window.location.hash || '#categories') {
+  try {
+    const positions = getSavedScrollPositions();
+    positions[routeHash] = window.scrollY;
+    sessionStorage.setItem(scrollPositionsStorageKey, JSON.stringify(positions));
+  } catch (error) {
+  }
+}
+
+function restoreScrollPosition(routeHash) {
+  let savedPosition = 0;
+  try {
+    savedPosition = getSavedScrollPositions()[routeHash] || 0;
+  } catch (error) {
+    savedPosition = 0;
+  }
+  window.scrollTo({ top: savedPosition, behavior: 'auto' });
+}
 
 function buildRouteHash(viewName, params = {}) {
   const secId = params.sectionId || activeSectionId;
@@ -859,6 +887,13 @@ function buildRouteHash(viewName, params = {}) {
 }
 
 function navigateTo(viewName, params = {}, pushHistory = true) {
+  const currentRouteHash = window.location.hash || '#categories';
+  const targetRouteHash = buildRouteHash(viewName, params);
+
+  if (currentRouteHash !== targetRouteHash) {
+    saveScrollPosition(currentRouteHash);
+  }
+
   if (viewName === 'cart' && currentView !== 'cart') {
     cartReturnState = {
       view: currentView,
@@ -905,18 +940,21 @@ function navigateTo(viewName, params = {}, pushHistory = true) {
 
   // Brauzerin tarixçəsinə (Browser History Stack) rəsmi qeyd əlavə etmək
   if (pushHistory && !isNavigatingFromPopState) {
-    const targetHash = buildRouteHash(viewName, params);
-    if (window.location.hash !== targetHash) {
+    if (window.location.hash !== targetRouteHash) {
       window.history.pushState({
         view: viewName,
         sectionId: params.sectionId || activeSectionId,
         subcategoryId: params.subcategoryId || activeSubcategoryId,
         searchQuery: params.searchQuery || activeSearchQuery
-      }, '', targetHash);
+      }, '', targetRouteHash);
     }
   }
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (isNavigatingFromPopState) {
+    window.requestAnimationFrame(() => restoreScrollPosition(targetRouteHash));
+  } else {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
 }
 
 window.showView = function(viewName, params = {}) {
@@ -1218,6 +1256,10 @@ function showToast(msg) {
  * 13. BAŞLANĞIC İNİSİALİZASİYASI (App Init)
  * ---------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual';
+  }
+
   if (cartCloseBtn) cartCloseBtn.addEventListener('click', window.returnToMenu);
 
   setupContainedScroll(sideDrawer);
