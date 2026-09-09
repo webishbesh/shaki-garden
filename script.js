@@ -259,69 +259,62 @@ const modalServiceEl = document.getElementById('modalService');
 const modalTotalEl = document.getElementById('modalTotal');
 const orderCodeValEl = document.getElementById('orderCodeVal');
 const newOrderBtn = document.getElementById('newOrderBtn');
-let scrollLockDepth = 0;
-let lockedScrollTop = 0;
+
+let scrollLockCount = 0;
+let lockedScrollY = 0;
 
 function lockBodyScroll() {
-  scrollLockDepth += 1;
-  if (scrollLockDepth > 1) return;
-
-  lockedScrollTop = window.scrollY;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${lockedScrollTop}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.overflow = 'hidden';
+  if (scrollLockCount === 0) {
+    lockedScrollY = window.scrollY;
+    document.body.classList.add('overlay-scroll-locked');
+    document.body.style.top = `-${lockedScrollY}px`;
+  }
+  scrollLockCount += 1;
 }
 
 function unlockBodyScroll() {
-  scrollLockDepth = Math.max(0, scrollLockDepth - 1);
-  if (scrollLockDepth > 0) return;
+  if (scrollLockCount === 0) return;
+  scrollLockCount -= 1;
+  if (scrollLockCount > 0) return;
 
-  document.body.style.position = '';
+  document.body.classList.remove('overlay-scroll-locked');
   document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.overflow = '';
-  window.scrollTo(0, lockedScrollTop);
+  window.scrollTo(0, lockedScrollY);
 }
 
-function keepOverlayScrollInside(container) {
-  if (!container) return;
+function setupContainedScroll(element) {
+  if (!element) return;
+
   let touchStartY = 0;
+  const isAtBoundary = (delta) => {
+    const atTop = element.scrollTop <= 0;
+    const atBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+    return (atTop && delta < 0) || (atBottom && delta > 0);
+  };
 
-  container.addEventListener('wheel', (event) => {
-    const atTop = container.scrollTop <= 0;
-    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
-    const movingPastTop = event.deltaY < 0 && atTop;
-    const movingPastBottom = event.deltaY > 0 && atBottom;
-
-    if (movingPastTop || movingPastBottom) event.preventDefault();
+  element.addEventListener('wheel', (event) => {
+    if (isAtBoundary(event.deltaY)) event.preventDefault();
   }, { passive: false });
 
-  container.addEventListener('touchstart', (event) => {
-    touchStartY = event.touches[0]?.clientY || 0;
+  element.addEventListener('touchstart', (event) => {
+    touchStartY = event.touches[0].clientY;
   }, { passive: true });
 
-  container.addEventListener('touchmove', (event) => {
-    const currentY = event.touches[0]?.clientY || touchStartY;
-    const deltaY = currentY - touchStartY;
-    const atTop = container.scrollTop <= 0;
-    const atBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 1;
-    const movingPastTop = deltaY > 0 && atTop;
-    const movingPastBottom = deltaY < 0 && atBottom;
-
-    if (movingPastTop || movingPastBottom) event.preventDefault();
+  element.addEventListener('touchmove', (event) => {
+    const delta = touchStartY - event.touches[0].clientY;
+    if (isAtBoundary(delta)) event.preventDefault();
   }, { passive: false });
 }
 
 function closeDrawer() {
+  if (!document.body.classList.contains('drawer-open')) return;
   document.body.classList.remove('drawer-open');
   if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'true');
   unlockBodyScroll();
 }
 
 function openDrawer() {
+  if (document.body.classList.contains('drawer-open')) return;
   document.body.classList.add('drawer-open');
   if (sideDrawer) sideDrawer.setAttribute('aria-hidden', 'false');
   lockBodyScroll();
@@ -1217,11 +1210,12 @@ function showToast(msg) {
  * 13. BAŞLANĞIC İNİSİALİZASİYASI (App Init)
  * ---------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  setupContainedScroll(sideDrawer);
+  setupContainedScroll(document.querySelector('.order-modal'));
+
   if (menuBtn) menuBtn.addEventListener('click', openDrawer);
   if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
   if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
-    keepOverlayScrollInside(sideDrawer);
-    keepOverlayScrollInside(document.querySelector('.order-modal'));
   if (drawerMenuToggle) {
     drawerMenuToggle.addEventListener('click', () => {
       const expanded = drawerMenuGroup.classList.toggle('expanded');
