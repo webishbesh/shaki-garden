@@ -246,6 +246,7 @@ const cartSubtotalEl = document.getElementById('cartSubtotal');
 const cartServiceFeeEl = document.getElementById('cartServiceFee');
 const cartTotalEl = document.getElementById('cartTotal');
 const toastEl = document.getElementById('toastNotice');
+const cartCloseBtn = document.getElementById('cartCloseBtn');
 
 // Sifariş Modalı
 const orderModalBackdrop = document.getElementById('orderModalBackdrop');
@@ -863,7 +864,8 @@ function navigateTo(viewName, params = {}, pushHistory = true) {
       view: currentView,
       sectionId: activeSectionId,
       subcategoryId: activeSubcategoryId,
-      searchQuery: activeSearchQuery
+      searchQuery: activeSearchQuery,
+      scrollY: window.scrollY
     };
   }
 
@@ -948,6 +950,10 @@ window.returnToMenu = function() {
   } else {
     navigateTo('categories', {}, true);
   }
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top: returnState.scrollY || 0, behavior: 'auto' });
+  });
 };
 
 /**
@@ -1210,6 +1216,8 @@ function showToast(msg) {
  * 13. BAŞLANĞIC İNİSİALİZASİYASI (App Init)
  * ---------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+  if (cartCloseBtn) cartCloseBtn.addEventListener('click', window.returnToMenu);
+
   setupContainedScroll(sideDrawer);
   setupContainedScroll(document.querySelector('.order-modal'));
 
