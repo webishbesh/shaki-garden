@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="az">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shakii Garden</title>
+    <meta name="description" content="Shakii Garden üçün rəqəmsal menyu, kateqoriyalar, axtarış, çoxdilli dəstək (AZ/EN/RU) və səbət/sifariş sistemi." />
+    <meta property="og:title" content="Shakii Garden" />
+    <meta property="og:description" content="Shakii Garden üçün rəqəmsal menyu, kateqoriyalar, axtarış, çoxdilli dəstək (AZ/EN/RU) və səbət/sifariş sistemi." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!-- Google Fonts: Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Əsas üslublar (styles.css) -->
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!-- ====================================================================
+         SAYTIN BAŞLIĞI (HEADER)
+         Geri düyməsi, AZ/EN/RU çoxdillilik keçidi, Axtarış və Səbət ikonları
+         ==================================================================== -->
+    <header class="site" id="siteHeader">
+      <button class="menu-btn" type="button" aria-label="Menyu" title="Menyu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <button class="back-btn" id="backHeaderBtn" aria-label="Geri" title="Geri" style="opacity: 0; pointer-events: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <!-- Çoxdillilik açarı (AZ / EN / RU) -->
+      <nav class="lang-switch" aria-label="Language selection">
+        <button type="button" data-lang="az" class="active" onclick="changeLanguage('az')">AZ</button>
+        <span>/</span>
+        <button type="button" data-lang="en" onclick="changeLanguage('en')">EN</button>
+        <span>/</span>
+        <button type="button" data-lang="ru" onclick="changeLanguage('ru')">RU</button>
+      </nav>
+
+      <!-- Başlıq ikonları: Axtarış və Səbət -->
+      <div class="header-icons">
+        <button class="icon-btn" id="searchToggleBtn" aria-label="Axtar" title="Axtar">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.35-4.35" />
+          </svg>
+        </button>
+
+        <button class="icon-btn" id="cartIconBtn" aria-label="Səbət" title="Səbət" onclick="showView('cart')">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 6h15l-1.5 9h-12L4 3H2" />
+            <circle cx="9" cy="20" r="1" />
+            <circle cx="18" cy="20" r="1" />
+          </svg>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="side-drawer" id="sideDrawer" aria-hidden="true">
+      <div class="drawer-header">
+        <h2>Menyu</h2>
+        <button class="drawer-close" id="drawerCloseBtn" type="button" aria-label="Bağla" title="Bağla">×</button>
+      </div>
+      <nav class="drawer-nav" aria-label="Əsas menyu">
+        <button class="drawer-link" type="button">Haqqımızda</button>
+        <button class="drawer-link" type="button">Əlaqə</button>
+        <button class="drawer-link" type="button">Ünvan</button>
+        <div class="drawer-menu-group" id="drawerMenuGroup">
+          <button class="drawer-link drawer-menu-toggle" id="drawerMenuToggle" type="button" aria-expanded="false">
+            <span>Menyu</span><span class="drawer-chevron">∨</span>
+          </button>
+          <div class="drawer-sections" id="drawerSections"></div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- ====================================================================
+         AXTARIŞ PANELİ (Açılan / Yığılan real-time input)
+         ==================================================================== -->
+    <div class="search-container" id="searchContainer">
+      <div class="search-inner">
+        <svg class="search-icon" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          data-i18n-placeholder="searchPlaceholder"
+          placeholder="Yemək və ya içki axtar..."
+          autocomplete="off"
+        />
+        <button type="button" class="search-clear-btn" id="searchClearBtn" aria-label="Təmizlə">✕</button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         BREND LOQO BLOKU (SHAKII GARDEN)
+         ==================================================================== -->
+    <div class="brand" id="brandLogo" title="Əsas səhifəyə qayıt" role="button" tabindex="0" onclick="goToHomePage()">
+      <img
+        src="/images/shakii-garden-logo.svg"
+        alt="SHAKII GARDEN"
+        class="brand-logo-img"
+        width="240"
+        height="219"
+        loading="eager"
+      />
+      <div class="brand-subtitle">Heritage &amp; Hospitality</div>
+    </div>
+
+    <!-- ====================================================================
+         ƏSAS MƏZMUN BÖLMƏLƏRİ (VIEWS)
+         ==================================================================== -->
+    <main>
+      <!-- 1. ƏSAS BÖLMƏLƏR SİYAHISI BAXIŞI (11 Bölmə) -->
+      <section id="view-categories" class="view active">
+        <div class="cat-grid" id="catGrid"></div>
+      </section>
+
+      <!-- 1.5. SEÇİLMİŞ BÖLMƏNİN ALT KATEQORİYALARI BAXIŞI -->
+      <section id="view-subcategories" class="view">
+        <div class="view-header">
+          <button type="button" class="back-link" id="backToMainSectionsBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span data-i18n="backToMainSections">Əvvəlki bölməyə qayıdın</span>
+          </button>
+          <h2 class="section-title" id="mainSectionTitle">Bölmə</h2>
+        </div>
+        <div class="cat-grid" id="subCatGrid"></div>
+      </section>
+
+      <!-- 2. SEÇİLMİŞ ALT KATEQORİYANIN YEMƏK KARTLARI BAXIŞI -->
+      <section id="view-items" class="view">
+        <div class="view-header">
+          <button type="button" class="back-link" id="backLinkBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span id="backToSubcategoriesText" data-i18n="backToSubcategories">Əvvəlki bölməyə qayıdın</span>
+          </button>
+          <h2 class="section-title" id="categoryTitle">Kateqoriya</h2>
+        </div>
+        <div class="item-grid" id="itemGrid"></div>
+      </section>
+
+      <!-- 3. REAL-TIME AXTARIŞ NƏTİCƏLƏRİ BAXIŞI -->
+      <section id="view-search" class="view">
+        <div class="view-header">
+          <button type="button" class="back-link" onclick="handleBackAction()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span data-i18n="backToCategories">Əvvəlki bölməyə qayıdın</span>
+          </button>
+          <h2 class="section-title">
+            <span data-i18n="searchTitle" id="searchHeading">Axtarış nəticələri</span>
+            <span id="searchCount" class="section-subtitle"></span>
+          </h2>
+        </div>
+        <div class="item-grid" id="searchResultsGrid"></div>
+      </section>
+
+      <!-- 4. SƏBƏT BAXIŞI -->
+      <section id="view-cart" class="view">
+        <div class="cart-wrap">
+          <h2 class="cart-header-title">
+            <span data-i18n="cartTitle">Sifariş Səbəti</span>
+          </h2>
+
+          <div class="table-responsive">
+            <table class="cart-table" id="cartTable">
+              <thead>
+                <tr>
+                  <th class="col-num-th" aria-hidden="true"></th>
+                  <th class="col-item-th" aria-hidden="true"></th>
+                  <th class="col-price-th" data-i18n="tableColPrice">Qiymət</th>
+                  <th class="col-qty-th" data-i18n="tableColQty">Say</th>
+                  <th class="col-total-th" data-i18n="tableColTotal">Cəm</th>
+                  <th class="col-del-th"></th>
+                </tr>
+              </thead>
+              <tbody id="cartBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Səbət boş olduqda bildiriş -->
+          <div class="cart-empty-note" id="cartEmptyNote">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M6 6h15l-1.5 9h-12L4 3H2" />
+              <circle cx="9" cy="20" r="1" />
+              <circle cx="18" cy="20" r="1" />
+            </svg>
+            <p data-i18n="cartEmpty">Səbətiniz hələlik boşdur.</p>
+            <button type="button" class="btn-primary cart-empty-btn" onclick="showView('categories')">
+              <span data-i18n="cartEmptyBtn">Menyudan seçim edin</span>
+            </button>
+          </div>
+
+          <!-- Səbət xülasəsi -->
+          <div class="cart-summary" id="cartSummaryBlock">
+            <div class="row">
+              <span data-i18n="subtotal">Məbləğ:</span>
+              <span id="cartSubtotal">0.00 AZN</span>
+            </div>
+            <div class="row">
+              <span data-i18n="serviceFee">Xidmət haqqı (8%):</span>
+              <span id="cartServiceFee">0.00 AZN</span>
+            </div>
+            <div class="row total">
+              <span data-i18n="total">Cəm:</span>
+              <span id="cartTotal">0.00 AZN</span>
+            </div>
+          </div>
+
+          <!-- Səbət əməliyyat düymələri -->
+          <div class="cart-actions" id="cartActionsBlock">
+            <button type="button" class="btn-danger" onclick="emptyCart()">
+              <span data-i18n="emptyCart">Səbəti Boşalt</span>
+            </button>
+            <button type="button" class="btn-primary" id="checkoutBtn" onclick="openCheckoutModal()">
+              <span data-i18n="checkoutBtn">Sifarişi Təsdiqlə</span>
+            </button>
+            <button type="button" class="btn-secondary" onclick="showView('categories')">
+              <span data-i18n="backToMenu">Menyuya Qayıt</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================
+         SİFARİŞ VƏ TƏSDİQ MODALI (Checkout Modal)
+         Backend olmadan sadə validasiya və təsdiq axını
+         ==================================================================== -->
+    <div class="modal-backdrop" id="orderModalBackdrop">
+      <div class="order-modal" role="dialog" aria-modal="true">
+        <!-- 1. Sifariş Formu -->
+        <div id="orderFormContainer">
+          <div class="order-modal-header">
+            <h3 class="order-modal-title" data-i18n="checkoutTitle">Sifarişi Rəsmiləşdir</h3>
+            <button type="button" class="order-modal-close" id="orderModalCloseBtn" aria-label="Bağla">✕</button>
+          </div>
+
+          <form id="orderForm">
+            <div class="order-form-group">
+              <label for="orderCustomerName">
+                <span data-i18n="fieldName">Adınız və Soyadınız</span>
+                <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="orderCustomerName"
+                class="order-form-control"
+                data-i18n-placeholder="fieldNamePlaceholder"
+                placeholder="Məs: Rəşad Əliyev"
+                required
+              />
+            </div>
+
+            <div class="order-form-group">
+              <label for="orderTableOrAddress">
+                <span data-i18n="fieldTableOrAddress">Masa Nömrəsi və ya Ünvan</span>
+                <span class="required">*</span>
+              </label>
+              <input
+                type="text"
+                id="orderTableOrAddress"
+                class="order-form-control"
+                data-i18n-placeholder="fieldTablePlaceholder"
+                placeholder="Məs: Masa 12 və ya Nizami küç. 45"
+                required
+              />
+            </div>
+
+            <div class="order-form-group">
+              <label for="orderCustomerPhone">
+                <span data-i18n="fieldPhone">Əlaqə nömrəsi</span>
+              </label>
+              <input
+                type="tel"
+                id="orderCustomerPhone"
+                class="order-form-control"
+                data-i18n-placeholder="fieldPhonePlaceholder"
+                placeholder="+994 (50) 000-00-00"
+              />
+            </div>
+
+            <div class="order-form-group">
+              <label for="orderCustomerNotes">
+                <span data-i18n="fieldNotes">Xüsusi qeyd və ya istək (istəyə görə)</span>
+              </label>
+              <textarea
+                id="orderCustomerNotes"
+                class="order-form-control"
+                data-i18n-placeholder="fieldNotesPlaceholder"
+                placeholder="Məs: sous ayrı verilsin, acısız olsun..."
+              ></textarea>
+            </div>
+
+            <div class="order-summary-box">
+              <div class="summary-row">
+                <span data-i18n="subtotal">Məbləğ:</span>
+                <span id="modalSubtotal">0.00 AZN</span>
+              </div>
+              <div class="summary-row">
+                <span data-i18n="serviceFee">Xidmət haqqı (8%):</span>
+                <span id="modalService">0.00 AZN</span>
+              </div>
+              <div class="summary-row total-bold">
+                <span data-i18n="total">Cəm:</span>
+                <span id="modalTotal">0.00 AZN</span>
+              </div>
+            </div>
+
+            <div class="order-form-actions">
+              <button type="button" class="btn-secondary" id="cancelOrderBtn">
+                <span data-i18n="btnCancel">Ləğv et</span>
+              </button>
+              <button type="submit" class="btn-primary">
+                <span data-i18n="btnSubmitOrder">Sifarişi Göndər</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- 2. Sifariş Uğur Ekranı -->
+        <div id="orderSuccessContainer" class="order-success-view" style="display: none;">
+          <div class="success-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <h3 class="order-modal-title" data-i18n="orderSuccessTitle" style="font-size: 24px; margin-bottom: 8px;">Sifarişiniz qəbul edildi!</h3>
+          <p data-i18n="orderSuccessMsg" style="color: var(--ink-muted); font-size: 14.5px; line-height: 1.5; margin: 0 0 16px;">
+            Təşəkkür edirik! Sifarişiniz mətbəxə ötürüldü və qısa zamanda masanıza təqdim ediləcək.
+          </p>
+          <div>
+            <span data-i18n="orderCodeLabel" style="font-size: 13.5px; color: var(--ink-muted);">Sifariş No:</span>
+            <div class="order-badge-num" id="orderCodeVal">#MD-1001</div>
+          </div>
+          <div style="margin-top: 20px;">
+            <button type="button" class="btn-primary" id="newOrderBtn" style="padding: 12px 30px; margin: 0 auto;">
+              <span data-i18n="btnNewOrder">Yeni Sifariş</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         ÜZƏN SƏBƏT DÜYMƏSİ (FAB)
+         ==================================================================== -->
+    <button class="fab" onclick="showView('cart')" aria-label="Səbət" title="Səbət">
+      <svg viewBox="0 0 24 24">
+        <path d="M6 6h15l-1.5 9h-12L4 3H2" />
+        <circle cx="9" cy="20" r="1" />
+        <circle cx="18" cy="20" r="1" />
+      </svg>
+      <span class="badge" id="fabBadge">0</span>
+    </button>
+
+    <!-- Bildiriş (Toast) -->
+    <div class="toast-notice" id="toastNotice"></div>
+
+    <!-- Əsas skript faylı (script.js) -->
+    <script type="module" src="/script.js"></script>
+  </body>
+</html>
+
+

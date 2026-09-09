@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 365" width="100%" height="100%" role="img" aria-label="SHAKII GARDEN">
+  <defs>
+    <!-- Outer Gothic Arch Dome Clip Path -->
+    <clipPath id="shakiiArchClip">
+      <path d="M 60,260 L 60,190 A 215 215 0 0 1 200,30 A 215 215 0 0 1 340,190 L 340,260 Z" />
+    </clipPath>
+  </defs>
+
+  <!-- Arched Dome Graphic -->
+  <g clip-path="url(#shakiiArchClip)">
+    <!-- Base background fill -->
+    <rect x="40" y="20" width="320" height="250" fill="#6d2e14" />
+
+    <!-- Faceted Color Panels -->
+    <!-- Far left outer flank -->
+    <path d="M 60,150 L 105,175 L 105,260 L 60,260 Z" fill="#8f401d" />
+
+    <!-- Left column -->
+    <path d="M 105,175 L 150,200 L 150,260 L 105,260 Z" fill="#aa5b29" />
+
+    <!-- Inner left slender lancet petal -->
+    <path d="M 150,200 Q 175,175 200,165 L 200,260 L 150,260 Z" fill="#b96833" />
+
+    <!-- Inner right slender lancet petal -->
+    <path d="M 200,165 Q 225,175 250,200 L 250,260 L 200,260 Z" fill="#954019" />
+
+    <!-- Right column -->
+    <path d="M 250,200 L 295,175 L 295,260 L 250,260 Z" fill="#562512" />
+
+    <!-- Far right outer flank -->
+    <path d="M 295,175 L 340,150 L 340,260 L 295,260 Z" fill="#9a4c22" />
+
+    <!-- Upper left flank -->
+    <path d="M 60,150 L 105,175 L 150,130 L 100,80 Z" fill="#522311" />
+
+    <!-- Upper right flank -->
+    <path d="M 340,150 L 295,175 L 250,130 L 300,80 Z" fill="#98461f" />
+
+    <!-- Center faceted diamond & polygons -->
+    <polygon points="200,165 150,130 200,105 250,130" fill="#8b3c18" />
+    <polygon points="150,130 200,105 160,55 100,80" fill="#5c2613" />
+    <polygon points="250,130 200,105 240,55 300,80" fill="#b85b28" />
+
+    <!-- Top Apex Facets -->
+    <polygon points="200,30 160,55 200,105" fill="#4c1f0d" />
+    <polygon points="200,30 240,55 200,105" fill="#a64f23" />
+    <polygon points="200,30 240,55 270,45" fill="#b45a27" />
+
+    <!-- White Separation Lines (Crisp architectural tracery) -->
+    <g fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Outer Gothic Arch Outline -->
+      <path d="M 60,260 L 60,190 A 215 215 0 0 1 200,30 A 215 215 0 0 1 340,190 L 340,260" />
+
+      <!-- Left intersecting arc -->
+      <path d="M 105,260 L 105,190 A 210 210 0 0 1 305,90" />
+
+      <!-- Right intersecting arc -->
+      <path d="M 295,260 L 295,190 A 210 210 0 0 0 95,90" />
+
+      <!-- Inner left lancet curve -->
+      <path d="M 150,260 L 150,205 A 200 200 0 0 1 245,65" />
+
+      <!-- Inner right lancet curve -->
+      <path d="M 250,260 L 250,205 A 200 200 0 0 0 155,65" />
+
+      <!-- Center vertical dividing line between inner lancets -->
+      <line x1="200" y1="165" x2="200" y2="260" />
+
+      <!-- Top Diamond & Facet White Lines -->
+      <line x1="200" y1="30" x2="200" y2="105" />
+      <line x1="160" y1="55" x2="240" y2="55" />
+      <line x1="150" y1="130" x2="250" y2="130" />
+      <line x1="170" y1="40" x2="260" y2="105" stroke-width="4" />
+      <line x1="200" y1="30" x2="270" y2="95" stroke-width="3.5" />
+      <line x1="200" y1="30" x2="130" y2="95" stroke-width="3.5" />
+    </g>
+  </g>
+
+  <!-- Typography: SHAKII GARDEN -->
+  <text
+    x="200"
+    y="302"
+    text-anchor="middle"
+    font-family="'Playfair Display', 'Bodoni MT', 'Times New Roman', serif"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="0.13em"
+    fill="#3e1b0c"
+  >SHAKII GARDEN</text>
+
+  <!-- Bottom Row: 6 Colored Rectangles (width exactly matches the dome width 280px) -->
+  <g id="shakiiColorBlocks">
+    <rect x="60" y="318" width="42.5" height="19" rx="1.5" fill="#9c4921" />
+    <rect x="107.5" y="318" width="42.5" height="19" rx="1.5" fill="#af6e42" />
+    <rect x="155" y="318" width="42.5" height="19" rx="1.5" fill="#4b210e" />
+    <rect x="202.5" y="318" width="42.5" height="19" rx="1.5" fill="#94411b" />
+    <rect x="250" y="318" width="42.5" height="19" rx="1.5" fill="#4f220f" />
+    <rect x="297.5" y="318" width="42.5" height="19" rx="1.5" fill="#aa663c" />
+  </g>
+</svg>

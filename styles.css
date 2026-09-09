@@ -1,0 +1,1945 @@
+/* ==========================================================================
+   THE MOOD — BISTRO & GRILL
+   styles.css — Əsas vizual üslub və responsiv dizayn faylı.
+   Bu fayl restoranın rəng palitrasını (krem, qızılı, tünd göy, kağız ağlığı),
+   serif və sans-serif tipoqrafiyasını, kart animasiyalarını, modal pəncərələri
+   və mobil/masaüstü responsiv qrafikasını təmin edir.
+   ========================================================================== */
+
+:root {
+  --cream: #f2efe9;
+  --stone: #e8e4dd;
+  --paper: #ffffff;
+  --ink: #1c1c1c;
+  --ink-muted: #6b645b;
+  --navy: #1f3a5f;
+  --gold: #b4894f;
+  --gold-deep: #8f6a37;
+  --gold-soft: #d9b98a;
+  --gold-light: #f7f1e6;
+  --line: #e2d9c8;
+  --line-dark: #c9bfad;
+  --overlay: rgba(15, 15, 15, 0.45);
+  --danger: #b83a30;
+  --success: #2e7d32;
+  --shadow-sm: 0 2px 8px rgba(28, 28, 28, 0.05);
+  --shadow-md: 0 8px 24px rgba(28, 28, 28, 0.08);
+  --shadow-lg: 0 16px 40px rgba(28, 28, 28, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(0, 0, 0, 0.025), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(0, 0, 0, 0.025), transparent 60%),
+    var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button, input, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* ---------- SITE HEADER ---------- */
+header.site {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.menu-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+}
+
+.menu-btn span {
+  display: block;
+  width: 21px;
+  height: 1.5px;
+  background: currentColor;
+}
+
+.menu-btn:hover {
+  background: var(--stone);
+}
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(15, 15, 15, 0.38);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 81;
+  width: 25vw;
+  min-width: 300px;
+  max-width: 420px;
+  padding: 28px 24px;
+  overflow-y: auto;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  box-shadow: 10px 0 30px rgba(28, 28, 28, 0.12);
+  transform: translateX(-102%);
+  transition: transform 0.25s ease;
+}
+
+.drawer-open .drawer-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-open .side-drawer {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-header h2 {
+  margin: 0;
+  color: var(--navy);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 24px;
+}
+
+.drawer-close {
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  font-size: 30px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.drawer-nav {
+  padding-top: 12px;
+}
+
+.drawer-link,
+.drawer-section-toggle,
+.drawer-subcategory-link {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  padding: 12px 0;
+  font-size: 15px;
+}
+
+.drawer-link:hover,
+.drawer-section-toggle:hover,
+.drawer-subcategory-link:hover {
+  color: var(--gold-deep);
+}
+
+.drawer-menu-toggle {
+  color: var(--navy);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  border-top: 1px solid var(--line);
+}
+
+.drawer-chevron {
+  color: var(--gold-deep);
+  font-size: 18px;
+  transition: transform 0.2s ease;
+}
+
+.drawer-menu-group.expanded .drawer-chevron {
+  transform: rotate(180deg);
+}
+
+.drawer-sections {
+  display: none;
+  padding: 2px 0 8px;
+}
+
+.drawer-menu-group.expanded .drawer-sections {
+  display: block;
+}
+
+.drawer-section {
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer-section-toggle {
+  color: var(--navy);
+  font-weight: 600;
+  padding: 11px 0;
+}
+
+.drawer-section-toggle .drawer-chevron {
+  font-size: 16px;
+}
+
+.drawer-section.expanded .drawer-chevron {
+  transform: rotate(180deg);
+}
+
+.drawer-subcategories {
+  display: none;
+  padding: 0 0 8px 14px;
+}
+
+.drawer-section.expanded .drawer-subcategories {
+  display: block;
+}
+
+.drawer-subcategory-link {
+  color: var(--ink-muted);
+  font-size: 14px;
+  padding: 7px 0;
+}
+
+.back-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink);
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: var(--stone);
+  border-color: var(--line);
+}
+
+.back-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Çoxdillilik (Language Switcher) */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+}
+
+.lang-switch button {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  color: var(--ink-muted);
+  font-weight: 500;
+  font-family: inherit;
+  font-size: inherit;
+  border-radius: 3px;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.lang-switch button:hover {
+  color: var(--gold-deep);
+}
+
+.lang-switch button.active {
+  color: var(--gold-deep);
+  font-weight: 700;
+  border-bottom: 2px solid var(--gold);
+}
+
+.lang-switch span {
+  color: #c9c2b3;
+  user-select: none;
+}
+
+.header-icons {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: background-color 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--stone);
+}
+
+.icon-btn.active {
+  background: var(--gold-light);
+  color: var(--gold-deep);
+}
+
+.icon-btn svg {
+  width: 21px;
+  height: 21px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.7;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 0px;
+  right: -2px;
+  background: var(--gold-deep);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- SEARCH BAR (Axtarış bölməsi) ---------- */
+.search-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.3s ease;
+  opacity: 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: 0 28px;
+}
+
+.search-container.open {
+  max-height: 90px;
+  opacity: 1;
+  padding: 16px 28px;
+}
+
+.search-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-inner svg.search-icon {
+  position: absolute;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  stroke: var(--gold-deep);
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 42px 0 44px;
+  background: var(--cream);
+  border: 1px solid var(--line-dark);
+  border-radius: 22px;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--gold-deep);
+  box-shadow: 0 0 0 3px rgba(180, 137, 79, 0.18);
+  background: #ffffff;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 6px;
+  display: none;
+}
+
+.search-clear-btn.visible {
+  display: block;
+}
+
+/* ---------- LOGO / BRAND BLOCK (SHAKII GARDEN) ---------- */
+.brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 36px 20px 24px;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  outline: none;
+}
+
+.brand-logo-img {
+  width: 220px;
+  max-width: 78vw;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+  filter: drop-shadow(0 2px 8px rgba(90, 39, 18, 0.08));
+}
+
+.brand-subtitle {
+  margin-top: -2px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--gold-deep);
+  line-height: 1.2;
+  text-transform: none;
+}
+
+.brand:hover .brand-logo-img {
+  transform: translateY(-2px) scale(1.02);
+  filter: drop-shadow(0 8px 20px rgba(90, 39, 18, 0.16));
+}
+
+.brand:focus-visible .brand-logo-img {
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 6px;
+  border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+  .brand {
+    padding: 24px 16px 18px;
+  }
+  .brand-logo-img {
+    width: 180px;
+  }
+  .brand-subtitle {
+    font-size: 15px;
+    letter-spacing: 0.04em;
+  }
+}
+
+/* ---------- MAIN CONTENT VIEWS ---------- */
+main {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 26px 90px;
+}
+
+.view {
+  display: none;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+.view.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header for Items & Search views */
+.view-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  gap: 8px;
+  width: 100%;
+}
+
+.view-header .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--gold-deep);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  white-space: nowrap;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.view-header .back-link:hover {
+  text-decoration: none;
+  color: var(--gold);
+  transform: translateX(-3px);
+}
+
+.view-header .back-link svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.view-header .back-link:hover svg {
+  transform: translateX(-2px);
+}
+
+.view-header .section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  color: var(--navy);
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.25;
+  width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 26px;
+  color: var(--navy);
+  margin: 0;
+  font-weight: 600;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+/* ==========================================================================
+   CATEGORY GRID (16 Kateqoriya üçün kartlar)
+   ========================================================================== */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+.cat-card {
+  position: relative;
+  aspect-ratio: 5 / 3.55;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  background-color: #2b2b2b;
+}
+
+.cat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Real şəkil qatı və ya qradiyent placeholder */
+.cat-card .cat-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+  z-index: 0;
+}
+
+.cat-card:hover .cat-bg-img {
+  transform: scale(1.05);
+}
+
+.cat-card .cat-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: var(--overlay);
+  transition: background 0.25s ease;
+}
+
+.cat-card:hover .cat-gradient {
+  background: rgba(10, 10, 10, 0.55);
+}
+
+/* Zərif çərçivə küncləri */
+.cat-card .frame {
+  position: absolute;
+  inset: 16px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.cat-card .frame span {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+}
+
+.cat-card .frame .tl {
+  top: 0;
+  left: 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.75);
+  border-left: 1px dashed rgba(255, 255, 255, 0.75);
+}
+
+.cat-card .frame .br {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.75);
+  border-right: 1px dashed rgba(255, 255, 255, 0.75);
+}
+
+.cat-card .num {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  color: #fff;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  z-index: 3;
+  opacity: 0.9;
+}
+
+.cat-card .title-wrap {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 0 16px;
+}
+
+.cat-card .rule {
+  width: 36px;
+  height: 2px;
+  background: var(--gold-soft);
+  margin: 0 auto 8px;
+}
+
+.cat-card .title {
+  font-family: 'Playfair Display', Georgia, serif;
+  color: #fff;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+.cat-card .item-count {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   ITEM GRID (Yemək kartları bölməsi)
+   ========================================================================== */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+.item-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.item-card .photo-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: #d8cfc0;
+  overflow: hidden;
+}
+
+.item-card .photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover .photo {
+  transform: scale(1.04);
+}
+
+.item-card .tag-badge {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  background: var(--gold-deep);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 14px 4px 10px;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0% 100%);
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.item-card .tag-badge.badge-spicy {
+  background: #c23b2f;
+}
+
+.item-card .category-pill {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.item-card .body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.item-card .name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: center;
+  position: relative;
+  padding-bottom: 10px;
+  margin: 0;
+}
+
+.item-card .name::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.item-card .desc {
+  font-size: 13px;
+  color: var(--ink-muted);
+  text-align: center;
+  line-height: 1.45;
+  min-height: 38px;
+}
+
+.price-stepper-row,
+.price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding: 4px 0 2px 0;
+  width: 100%;
+}
+
+.item-price-display,
+.price-row .price {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-style: italic;
+  color: #000000;
+  font-size: 17.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  padding: 0 4px;
+}
+
+.qty-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--gold-soft);
+  border-radius: 4px;
+  background: #ffffff;
+  overflow: hidden;
+  height: 38px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.qty-stepper .qty-btn,
+.qty-btn {
+  width: 36px;
+  height: 38px;
+  background: var(--gold-soft);
+  border: none;
+  color: #493315;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.qty-stepper .qty-btn:hover,
+.qty-btn:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.qty-stepper .qty-btn:active,
+.qty-btn:active {
+  transform: scale(0.96);
+}
+
+.qty-stepper .qty-val,
+.qty-val {
+  min-width: 32px;
+  padding: 0 6px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 15px;
+  user-select: none;
+}
+
+.add-btn {
+  background: var(--gold);
+  border: none;
+  color: #241a0d;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 12px 0;
+  border-radius: 3px;
+  letter-spacing: 0.02em;
+  font-family: 'Playfair Display', Georgia, serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(180, 137, 79, 0.2);
+}
+
+.add-btn:hover {
+  background: var(--gold-deep);
+  color: #fff;
+}
+
+.add-btn svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ==========================================================================
+   CART VIEW & SƏBƏT CƏDVƏLİ
+   ========================================================================== */
+.cart-wrap {
+  background: #ffffff;
+  border: 1px solid #eee7dc;
+  border-radius: 4px;
+  max-width: 900px;
+  margin: 10px auto 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+}
+
+.cart-header-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  color: #162846;
+  font-size: 26px;
+  font-weight: 700;
+  padding: 20px 20px 14px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-bottom: none;
+  letter-spacing: 0.01em;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.cart-table thead th {
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: #555555;
+  padding: 12px 6px;
+  border-top: 1px solid #e8decb;
+  border-bottom: 1px solid #e8decb;
+  background: #faf6f0;
+  letter-spacing: 0.02em;
+}
+
+table.cart-table thead th.col-num-th,
+table.cart-table thead th:nth-child(1) {
+  width: 32px;
+}
+
+table.cart-table thead th.col-item-th,
+table.cart-table thead th:nth-child(2) {
+  text-align: left;
+  padding-left: 12px;
+}
+
+table.cart-table thead th.col-del-th,
+table.cart-table thead th:last-child {
+  width: 44px;
+}
+
+table.cart-table td {
+  text-align: center;
+  padding: 14px 6px;
+  font-size: 13.5px;
+  color: #333333;
+  border-bottom: 1px solid #f0eae1;
+  vertical-align: middle;
+}
+
+table.cart-table td.col-num {
+  font-size: 13px;
+  color: #555555;
+  width: 32px;
+}
+
+table.cart-table td.col-item {
+  text-align: left;
+  padding-left: 12px;
+}
+
+.cart-item-name {
+  color: #162846;
+  font-weight: 700;
+  font-size: 14.5px;
+  line-height: 1.25;
+}
+
+.cart-item-unit-price {
+  display: none;
+}
+
+table.cart-table td.col-price {
+  font-size: 13.5px;
+  color: #333333;
+  white-space: nowrap;
+}
+
+table.cart-table td.col-qty {
+  white-space: nowrap;
+}
+
+table.cart-table td.col-total {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #333333;
+  white-space: nowrap;
+}
+
+/* Sayğac kontrolleri: [-] 11 [+] */
+.cart-qty-ctrl,
+.cart-qty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.cart-qty-btn,
+.cart-qty button {
+  width: 24px;
+  height: 24px;
+  background: #faf8f5;
+  border: 1px solid #71717a;
+  border-radius: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f2937;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.cart-qty-btn:hover,
+.cart-qty button:hover {
+  background: #eae4dc;
+  border-color: #374151;
+}
+
+.cart-qty-num,
+.cart-qty .v {
+  min-width: 18px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #162846;
+  padding: 0 2px;
+}
+
+/* Silmə düyməsi: Zərif zibil qutusu */
+.col-del {
+  width: 44px;
+  text-align: center;
+}
+
+.cart-del-btn,
+.remove-x {
+  width: 32px;
+  height: 32px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #dc2626;
+  padding: 0;
+  margin: 0 auto;
+  transition: all 0.18s ease;
+}
+
+.cart-del-btn svg,
+.remove-x svg {
+  width: 17px;
+  height: 17px;
+  stroke: #dc2626;
+  stroke-width: 1.85;
+  transition: transform 0.18s ease;
+}
+
+.cart-del-btn:hover,
+.remove-x:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  transform: scale(1.05);
+}
+
+.cart-del-btn:active,
+.remove-x:active {
+  transform: scale(0.95);
+}
+
+.cart-empty-note {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 360px;
+  padding: 88px 24px 52px;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.cart-empty-note svg {
+  width: 46px;
+  height: 46px;
+  stroke: var(--gold-soft);
+  margin-bottom: 12px;
+}
+
+.cart-empty-note p {
+  font-size: 15.5px;
+  margin: 0 0 18px;
+  color: #4a4237;
+}
+
+.cart-empty-btn {
+  display: block;
+  width: min(100%, 500px);
+  margin: 0 auto;
+  min-height: 48px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 10px 16px;
+}
+
+/* Səbət Xülasəsi (Cart Summary) */
+.cart-summary {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 14px 22px 4px;
+  margin: 10px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  max-width: 290px;
+}
+
+.cart-summary .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font-size: 14.5px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.cart-summary .row span:last-child {
+  font-size: 14.5px;
+  color: #333333;
+  font-weight: 500;
+}
+
+.cart-summary .row:nth-child(2) {
+  font-size: 14px;
+}
+
+.cart-summary .row.total {
+  border-top: 1px dashed #d5ccbe;
+  padding-top: 13px;
+  margin-top: 4px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #162846;
+}
+
+.cart-summary .row.total span:last-child {
+  font-size: 17.5px;
+  color: #162846;
+  font-weight: 700;
+}
+
+/* Səbət Düymələri (Cart Actions) */
+.cart-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 16px 20px 24px;
+  background: transparent;
+  border-top: 1px solid #eee7dc;
+}
+
+.cart-actions button {
+  width: 100%;
+  border-radius: 4px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 700;
+  font-size: 14.5px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+/* 1. Səbəti Boşalt */
+.cart-actions .btn-danger {
+  background: #fff9f9;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  box-shadow: none;
+}
+
+.cart-actions .btn-danger:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #991b1b;
+}
+
+/* 2. Sifarişi Təsdiqlə */
+.cart-actions .btn-primary {
+  background: #b18548;
+  border: none;
+  color: #1a2233;
+  box-shadow: 0 2px 6px rgba(175, 130, 71, 0.2);
+}
+
+.cart-actions .btn-primary:hover {
+  background: #9f753c;
+  color: #0d131f;
+}
+
+/* 3. Menyuya Qayıt */
+.cart-actions .btn-secondary {
+  background: #eae4dc;
+  border: 1px solid #dcd4c7;
+  color: #162846;
+  box-shadow: none;
+}
+
+.cart-actions .btn-secondary:hover {
+  background: #ded5c9;
+}
+
+.btn-danger {
+  background: #fcf0ee;
+  color: var(--danger);
+  border: 1px solid #f2c7c3 !important;
+}
+
+.btn-danger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: #241a0d;
+}
+
+.btn-primary:hover {
+  background: var(--gold-deep);
+  color: #fff;
+}
+
+/* ==========================================================================
+   ORDER / CHECKOUT MODAL (Sifariş Formu)
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 15, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop.open {
+  display: flex;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+.order-modal {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  padding: 28px 30px;
+  position: relative;
+}
+
+.order-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--navy);
+  margin: 0;
+}
+
+.order-modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #777;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.order-form-group {
+  margin-bottom: 16px;
+}
+
+.order-form-group label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.order-form-group label span.required {
+  color: var(--danger);
+}
+
+.order-form-control {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line-dark);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--ink);
+  background: #faf8f5;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.order-form-control:focus {
+  border-color: var(--gold-deep);
+  outline: none;
+  background: #fff;
+}
+
+textarea.order-form-control {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.order-summary-box {
+  background: var(--cream);
+  padding: 14px 18px;
+  border-radius: 4px;
+  margin: 18px 0 22px;
+  font-size: 14px;
+}
+
+.order-summary-box .summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: var(--ink-muted);
+}
+
+.order-summary-box .summary-row.total-bold {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 16px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line-dark);
+  margin-bottom: 0;
+}
+
+.order-form-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.order-form-actions button {
+  flex: 1;
+  padding: 12px;
+  font-size: 15px;
+}
+
+/* Sifariş təsdiqi / Uğur ekranı */
+.order-success-view {
+  text-align: center;
+  padding: 20px 10px;
+}
+
+.success-icon-wrap {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  color: var(--success);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.success-icon-wrap svg {
+  width: 36px;
+  height: 36px;
+  stroke: currentColor;
+  stroke-width: 2.2;
+}
+
+.order-badge-num {
+  display: inline-block;
+  background: var(--gold-light);
+  color: var(--gold-deep);
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  margin: 12px 0 16px;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- FLOATING CART BUTTON (FAB) ---------- */
+.fab {
+  position: fixed;
+  right: 26px;
+  bottom: 26px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gold-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(143, 106, 55, 0.45);
+  z-index: 45;
+  border: none;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+body.view-cart-active .fab {
+  display: none !important;
+}
+
+.fab:hover {
+  transform: scale(1.06);
+  background: var(--gold);
+}
+
+.fab svg {
+  width: 25px;
+  height: 25px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.fab .badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #241a0d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+/* Toast Bildiriş */
+.toast-notice {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: var(--navy);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.toast-notice.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   RESPONSIV DAVRANIŞ (Masaüstü və Mobil)
+   Masaüstündə 3 sütun (həm kateqoriyalar, həm yemək kartları).
+   Mobil ekranda kateqoriyalar 2 sütun, yemək kartları 1 sütun.
+   ========================================================================== */
+@media (max-width: 860px) {
+  .side-drawer {
+    width: 75vw;
+    min-width: 0;
+    max-width: none;
+    padding: 24px 20px;
+  }
+
+  header.site {
+    padding: 12px 16px;
+  }
+
+  .lang-switch {
+    font-size: 14px;
+    gap: 4px;
+  }
+
+  .brand {
+    padding: 28px 16px 20px;
+  }
+
+  .brand .mood {
+    font-size: 46px;
+  }
+
+  .brand .mood::after {
+    bottom: -10px;
+    height: 16px;
+  }
+
+  .brand .sub {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    margin-top: 16px;
+  }
+
+  main {
+    padding: 0 16px 80px;
+  }
+
+  /* Mobil ekranda kateqoriyalar 2 sütun */
+  .cat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .cat-card {
+    aspect-ratio: 5 / 3.8;
+  }
+
+  .cat-card .frame {
+    inset: 10px;
+  }
+
+  .cat-card .frame span {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cat-card .title-wrap {
+    padding: 0 8px;
+  }
+
+  .cat-card .rule {
+    width: 28px;
+    margin: 0 auto 6px;
+  }
+
+  .cat-card .title {
+    font-size: 14.5px;
+    line-height: 1.25;
+  }
+
+  .cat-card .item-count {
+    font-size: 10px;
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  .cat-card .num {
+    font-size: 12px;
+    left: 10px;
+    bottom: 8px;
+  }
+
+  /* Mobil ekranda yemək kartları 1 sütun */
+  .item-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  body.view-cart-active .brand,
+  body.view-cart-active #brandLogo {
+    display: none !important;
+  }
+
+  .cart-wrap {
+    margin-top: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 0 2px;
+    min-height: calc(100dvh - 62px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cart-header-title {
+    padding: 6px 2px 14px;
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+
+  table.cart-table thead th {
+    padding: 9px 4px;
+    font-size: 11px;
+    background: transparent;
+  }
+
+  table.cart-table thead th.col-num-th {
+    width: 24px;
+  }
+
+  table.cart-table thead th.col-item-th {
+    padding-left: 6px;
+  }
+
+  /* Mobildə vahid qiymət yemək adının altında göstərildiyi üçün ayrıca Qiymət sütunu gizlədilir və beləliklə cədvəl sıxlaşmır */
+  table.cart-table thead th.col-price-th,
+  table.cart-table td.col-price {
+    display: none;
+  }
+
+  table.cart-table thead th.col-del-th {
+    width: 36px;
+  }
+
+  table.cart-table td {
+    padding: 12px 4px;
+    font-size: 13px;
+  }
+
+  table.cart-table td.col-num {
+    width: 24px;
+    font-size: 12px;
+  }
+
+  table.cart-table td.col-item {
+    padding-left: 6px;
+  }
+
+  .cart-item-name {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+
+  .cart-item-unit-price {
+    font-size: 11.5px;
+    margin-top: 2px;
+  }
+
+  table.cart-table td.col-total {
+    font-size: 13.5px;
+    padding: 12px 6px;
+  }
+
+  .cart-qty-ctrl {
+    gap: 4px;
+  }
+
+  .cart-qty-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
+
+  .cart-qty-num {
+    min-width: 18px;
+    font-size: 13.5px;
+    padding: 0 1px;
+  }
+
+  .col-del {
+    width: 36px;
+  }
+
+  .cart-del-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .cart-del-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .cart-empty-note {
+    min-height: 260px;
+    padding: 36px 16px 20px;
+  }
+
+  .cart-empty-note svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+  }
+
+  .cart-empty-note p {
+    font-size: 13.5px;
+    margin-bottom: 14px;
+  }
+
+  .cart-empty-btn {
+    min-height: 42px;
+    font-size: 14px;
+    padding: 9px 12px;
+  }
+
+  .cart-summary {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin: auto 0 0;
+    padding: 12px 4px 2px;
+    gap: 11px;
+  }
+
+  .cart-summary .row {
+    width: 100%;
+    font-size: 13.5px;
+  }
+
+  .cart-summary .row span:last-child {
+    font-size: 13.5px;
+  }
+
+  .cart-summary .row.total {
+    font-size: 16.5px;
+    padding-top: 11px;
+    margin-top: 3px;
+  }
+
+  .cart-summary .row.total span:last-child {
+    font-size: 17.5px;
+  }
+
+  .cart-actions {
+    padding: 14px 2px 24px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cart-actions button {
+    width: 100%;
+  }
+
+  .cart-actions .btn-danger {
+    padding: 8px 12px;
+    font-size: 13.5px;
+  }
+
+  .cart-actions .btn-primary {
+    padding: 12px 14px;
+    font-size: 14.5px;
+  }
+
+  .cart-actions .btn-secondary {
+    padding: 8.5px 12px;
+    font-size: 13.5px;
+  }
+
+  /* Sifarişi Rəsmiləşdir modalı mobildə tam ekran boyu açılsın */
+  .modal-backdrop {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+    background: var(--paper);
+    backdrop-filter: none;
+  }
+
+  .order-modal {
+    width: 100vw;
+    max-width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    padding: 16px 16px 40px;
+    background: var(--paper);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .order-modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 5;
+    margin: -16px -16px 16px -16px;
+    padding: 16px 16px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .order-modal-title {
+    font-size: 20px;
+  }
+
+  .order-modal-close {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 440px) {
+  .view-header {
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+  }
+
+  .view-header .section-title {
+    font-size: 22px;
+    line-height: 1.25;
+  }
+
+  .view-header .back-link {
+    font-size: 13.5px;
+    gap: 6px;
+  }
+
+  .view-header .back-link svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .cat-grid {
+    gap: 10px;
+  }
+
+  .cat-card .title {
+    font-size: 13.5px;
+    line-height: 1.22;
+  }
+
+  .cat-card .item-count {
+    font-size: 9.5px;
+    margin-top: 2px;
+  }
+
+  .cat-card .num {
+    font-size: 11px;
+    left: 8px;
+    bottom: 6px;
+  }
+
+  .cat-card .frame {
+    inset: 8px;
+  }
+
+  .cat-card .frame span {
+    width: 14px;
+    height: 14px;
+  }
+}
