@@ -177,6 +177,7 @@ let cartReturnState = null;
 let cart = loadCartFromStorage();    // Səbət obyekti
 let favorites = loadFavoritesFromStorage();
 const cartReturnStateKey = 'shakii_garden_cart_return_state';
+const menuNavigationStateKey = 'shakii_garden_menu_navigation_state';
 
 // Müvəqqəti porsiya sayğacları
 const itemQtyState = {};
@@ -221,6 +222,26 @@ function saveCartReturnState(state) {
 function loadCartReturnState() {
   try {
     return JSON.parse(sessionStorage.getItem(cartReturnStateKey) || 'null');
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveMenuNavigationState() {
+  if (!['categories', 'subcategories', 'items', 'search'].includes(currentView)) return;
+
+  sessionStorage.setItem(menuNavigationStateKey, JSON.stringify({
+    view: currentView,
+    sectionId: activeSectionId,
+    subcategoryId: activeSubcategoryId,
+    searchQuery: activeSearchQuery,
+    scrollY: window.scrollY
+  }));
+}
+
+function loadMenuNavigationState() {
+  try {
+    return JSON.parse(sessionStorage.getItem(menuNavigationStateKey) || 'null');
   } catch (e) {
     return null;
   }
@@ -986,6 +1007,7 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
   }
 
   if (viewName === 'cart' && currentView !== 'cart') {
+    saveMenuNavigationState();
     saveCartReturnState({
       view: currentView,
       sectionId: activeSectionId,
@@ -993,6 +1015,10 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
       searchQuery: activeSearchQuery,
       scrollY: window.scrollY
     });
+  }
+
+  if ((viewName === 'favorites' || viewName === 'profile') && currentView !== viewName) {
+    saveMenuNavigationState();
   }
 
   if (currentView !== viewName) {
@@ -1063,6 +1089,39 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
 window.showView = function(viewName, params = {}) {
   navigateTo(viewName, params, true);
 };
+
+function restoreMenuNavigationState(state) {
+  if (!state || !state.view || state.view === 'categories') return false;
+
+  activeSectionId = state.sectionId ? Number(state.sectionId) : null;
+  activeSubcategoryId = state.subcategoryId || null;
+  activeSearchQuery = state.searchQuery || '';
+
+  if (state.view === 'subcategories' && activeSectionId) {
+    renderSubcategories(activeSectionId);
+    navigateTo('subcategories', { sectionId: activeSectionId, scrollY: state.scrollY }, false, true);
+  } else if (state.view === 'items' && activeSectionId && activeSubcategoryId) {
+    renderCategoryItems();
+    navigateTo('items', {
+      sectionId: activeSectionId,
+      subcategoryId: activeSubcategoryId,
+      scrollY: state.scrollY
+    }, false, true);
+  } else if (state.view === 'search' && activeSearchQuery) {
+    performSearch(activeSearchQuery);
+    navigateTo('search', { searchQuery: activeSearchQuery, scrollY: state.scrollY }, false, true);
+  } else {
+    return false;
+  }
+
+  window.history.replaceState({
+    view: state.view,
+    sectionId: activeSectionId,
+    subcategoryId: activeSubcategoryId,
+    searchQuery: activeSearchQuery
+  }, '', buildRouteHash(state.view, state));
+  return true;
+}
 
 window.returnToMenu = function() {
   const returnState = cartReturnState || loadCartReturnState() || {
@@ -1179,6 +1238,11 @@ function applyRouteFromURL() {
  * Yuxarıdakı loqoya kliklədikdə və ya hər hansı bölmədən ana səhifəyə qayıtmaq üçün funksiya
  */
 function goToHomePage() {
+  const savedMenuState = loadMenuNavigationState();
+  if (currentView !== 'categories' && restoreMenuNavigationState(savedMenuState)) {
+    return;
+  }
+
   activeSectionId = null;
   activeSubcategoryId = null;
   if (searchInput) searchInput.value = '';
