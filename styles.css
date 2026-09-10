@@ -1845,6 +1845,13 @@ body.view-cart-active .fab {
     display: none;
   }
 
+  body.mobile-view-active .brand,
+  body.mobile-view-active #brandLogo,
+  body.view-cart-active .brand,
+  body.view-cart-active #brandLogo {
+    display: none !important;
+  }
+
   .cart-close-btn {
     display: none;
   }

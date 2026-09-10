@@ -63,7 +63,26 @@ const i18n = {
     orderSuccessMsg: 'Təşəkkür edirik! Sifarişiniz mətbəxə ötürüldü və qısa zamanda masanıza təqdim ediləcək.',
     orderCodeLabel: 'Sifariş No:',
     btnNewOrder: 'Yeni Sifariş',
-    fillRequiredFields: 'Zəhmət olmasa, adınızı və masa/ünvan məlumatını qeyd edin.'
+    fillRequiredFields: 'Zəhmət olmasa, adınızı və masa/ünvan məlumatını qeyd edin.',
+    home: 'Ana Səhifə',
+    orders: 'Sifarişlərim',
+    selected: 'Seçdiklərim',
+    profile: 'Profil',
+    selectedEyebrow: 'Seçdikləriniz',
+    selectedDescription: 'Ürək işarəsi ilə seçdiyiniz yeməklər burada görünəcək.',
+    selectedEmpty: 'Hələ sevimliniz yoxdur',
+    selectedEmptyHint: 'Yemək kartlarındakı ürəyə toxunun.',
+    profileEyebrow: 'Şəxsi məlumatlar',
+    profileDescription: 'Məlumatlarınızı yeniləyin və sifarişlərdə daha sürətli istifadə edin.',
+    profileName: 'Ad',
+    profileSurname: 'Soyad',
+    profilePhone: 'Əlaqə Telefonu',
+    profileEmail: 'Gmail',
+    saveProfile: 'Məlumatları yadda saxla',
+    namePlaceholder: 'Adınız',
+    surnamePlaceholder: 'Soyadınız',
+    phonePlaceholder: '+994 (__) ___ __ __',
+    emailPlaceholder: 'mail@example.com'
   },
   en: {
     brandThe: 'THE',
@@ -111,7 +130,26 @@ const i18n = {
     orderSuccessMsg: 'Thank you! Your order has been dispatched to the kitchen and will be served shortly.',
     orderCodeLabel: 'Order #:',
     btnNewOrder: 'New Order',
-    fillRequiredFields: 'Please provide your name and table/address.'
+    fillRequiredFields: 'Please provide your name and table/address.',
+    home: 'Home',
+    orders: 'My Orders',
+    selected: 'Selected',
+    profile: 'Profile',
+    selectedEyebrow: 'Your selections',
+    selectedDescription: 'Meals you choose with the heart icon will appear here.',
+    selectedEmpty: 'No selected meals yet',
+    selectedEmptyHint: 'Tap the heart on a meal card.',
+    profileEyebrow: 'Personal details',
+    profileDescription: 'Update your details for faster ordering.',
+    profileName: 'First name',
+    profileSurname: 'Last name',
+    profilePhone: 'Phone number',
+    profileEmail: 'Email',
+    saveProfile: 'Save details',
+    namePlaceholder: 'Your first name',
+    surnamePlaceholder: 'Your last name',
+    phonePlaceholder: '+994 (__) ___ __ __',
+    emailPlaceholder: 'mail@example.com'
   },
   ru: {
     brandThe: 'THE',
@@ -159,7 +197,26 @@ const i18n = {
     orderSuccessMsg: 'Спасибо! Ваш заказ отправлен на кухню и скоро будет подан на ваш стол.',
     orderCodeLabel: 'Заказ №:',
     btnNewOrder: 'Новый Заказ',
-    fillRequiredFields: 'Пожалуйста, укажите ваше имя и номер столика/адрес.'
+    fillRequiredFields: 'Пожалуйста, укажите ваше имя и номер столика/адрес.',
+    home: 'Главная',
+    orders: 'Мои заказы',
+    selected: 'Избранное',
+    profile: 'Профиль',
+    selectedEyebrow: 'Ваш выбор',
+    selectedDescription: 'Блюда, выбранные сердцем, появятся здесь.',
+    selectedEmpty: 'Пока нет избранных блюд',
+    selectedEmptyHint: 'Нажмите на сердце на карточке блюда.',
+    profileEyebrow: 'Личные данные',
+    profileDescription: 'Обновите данные для быстрого заказа.',
+    profileName: 'Имя',
+    profileSurname: 'Фамилия',
+    profilePhone: 'Номер телефона',
+    profileEmail: 'Электронная почта',
+    saveProfile: 'Сохранить данные',
+    namePlaceholder: 'Ваше имя',
+    surnamePlaceholder: 'Ваша фамилия',
+    phonePlaceholder: '+994 (__) ___ __ __',
+    emailPlaceholder: 'mail@example.com'
   }
 };
 
@@ -1029,8 +1086,11 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.body.classList.toggle('mobile-view-active', viewName === 'favorites' || viewName === 'profile');
   document.body.classList.toggle('view-home-active', viewName === 'categories');
+  const mobileActiveView = ['categories', 'subcategories', 'items', 'search'].includes(viewName)
+    ? 'categories'
+    : viewName;
   document.querySelectorAll('.mobile-nav-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.mobileView === viewName);
+    item.classList.toggle('active', item.dataset.mobileView === mobileActiveView);
   });
 
   if (backHeaderBtn) {
@@ -1240,9 +1300,16 @@ function applyRouteFromURL() {
 function goToHomePage() {
   const savedMenuState = loadMenuNavigationState();
   if (currentView !== 'categories' && restoreMenuNavigationState(savedMenuState)) {
+    document.querySelectorAll('.mobile-nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.mobileView === 'categories');
+    });
     return;
   }
 
+  goToRootPage();
+}
+
+function goToRootPage() {
   activeSectionId = null;
   activeSubcategoryId = null;
   if (searchInput) searchInput.value = '';
@@ -1255,6 +1322,7 @@ function goToHomePage() {
   armRootHistoryGuard();
 }
 window.goToHomePage = goToHomePage;
+window.goToRootPage = goToRootPage;
 
 /**
  * Geri qayıtma əməliyyatı:
@@ -1457,11 +1525,11 @@ document.addEventListener('DOMContentLoaded', () => {
     backHeaderBtn.addEventListener('click', handleBackAction);
   }
   if (brandLogo) {
-    brandLogo.addEventListener('click', goToHomePage);
+    brandLogo.addEventListener('click', goToRootPage);
     brandLogo.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        goToHomePage();
+        goToRootPage();
       }
     });
   }
