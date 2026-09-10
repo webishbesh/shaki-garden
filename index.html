@@ -235,7 +235,60 @@
           </div>
         </div>
       </section>
+
+      <!-- Mobil favoritlər bölməsi -->
+      <section id="view-favorites" class="view mobile-account-view">
+        <div class="account-view-header">
+          <span class="account-eyebrow">Seçdikləriniz</span>
+          <h2 class="section-title">Sevimlilər</h2>
+          <p>Ürək işarəsi ilə seçdiyiniz yeməklər burada görünəcək.</p>
+        </div>
+        <div class="item-grid" id="favoritesGrid"></div>
+        <div class="favorites-empty" id="favoritesEmpty">
+          <span class="favorites-empty-heart">♡</span>
+          <strong>Hələ sevimliniz yoxdur</strong>
+          <span>Yemək kartlarındakı ürəyə toxunun.</span>
+        </div>
+      </section>
+
+      <!-- Mobil profil bölməsi -->
+      <section id="view-profile" class="view mobile-account-view">
+        <div class="account-view-header">
+          <span class="account-eyebrow">Şəxsi məlumatlar</span>
+          <h2 class="section-title">Profil</h2>
+          <p>Məlumatlarınızı yeniləyin və sifarişlərdə daha sürətli istifadə edin.</p>
+        </div>
+        <form class="profile-form" id="profileForm">
+          <label>Ad<input id="profileName" type="text" placeholder="Adınız" autocomplete="given-name"></label>
+          <label>Soyad<input id="profileSurname" type="text" placeholder="Soyadınız" autocomplete="family-name"></label>
+          <label>Əlaqə Telefonu<input id="profilePhone" type="tel" placeholder="+994 (__) ___ __ __" autocomplete="tel"></label>
+          <label>Gmail<input id="profileEmail" type="email" placeholder="mail@example.com" autocomplete="email"></label>
+          <button class="btn-primary profile-save" type="submit">Məlumatları yadda saxla</button>
+          <span class="profile-status" id="profileStatus" role="status"></span>
+        </form>
+      </section>
     </main>
+
+    <!-- Mobil tətbiq tipli alt naviqasiya -->
+    <nav class="mobile-bottom-nav" aria-label="Mobil naviqasiya">
+      <button type="button" data-mobile-view="categories" class="mobile-nav-item active" aria-label="Ana Səhifə">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        <span>Ana Səhifə</span>
+      </button>
+      <button type="button" data-mobile-view="cart" class="mobile-nav-item" aria-label="Sifarişlərim">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-1.5 9h-12L4 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
+        <span>Sifarişlərim</span>
+        <b class="mobile-nav-badge" id="mobileCartBadge">0</b>
+      </button>
+      <button type="button" data-mobile-view="favorites" class="mobile-nav-item" aria-label="Sevimlilər">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.6z"/></svg>
+        <span>Seçdiklərim</span>
+      </button>
+      <button type="button" data-mobile-view="profile" class="mobile-nav-item" aria-label="Profil">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        <span>Profil</span>
+      </button>
+    </nav>
 
     <!-- ====================================================================
          SİFARİŞ VƏ TƏSDİQ MODALI (Checkout Modal)

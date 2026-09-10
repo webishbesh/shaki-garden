@@ -175,6 +175,8 @@ let activeSubcategoryId = null;     // Aktiv alt kateqoriyanın ID-si
 let activeSearchQuery = '';          // Axtarış mətni
 let cartReturnState = null;
 let cart = loadCartFromStorage();    // Səbət obyekti
+let favorites = loadFavoritesFromStorage();
+const cartReturnStateKey = 'shakii_garden_cart_return_state';
 
 // Müvəqqəti porsiya sayğacları
 const itemQtyState = {};
@@ -196,6 +198,31 @@ function saveCartToStorage() {
     localStorage.setItem('the_mood_bistro_cart', JSON.stringify(cart));
   } catch (e) {
     console.error('LocalStorage yazma xətası:', e);
+  }
+}
+
+function loadFavoritesFromStorage() {
+  try {
+    return JSON.parse(localStorage.getItem('shakii_garden_favorites') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveFavoritesToStorage() {
+  localStorage.setItem('shakii_garden_favorites', JSON.stringify(favorites));
+}
+
+function saveCartReturnState(state) {
+  cartReturnState = state;
+  sessionStorage.setItem(cartReturnStateKey, JSON.stringify(state));
+}
+
+function loadCartReturnState() {
+  try {
+    return JSON.parse(sessionStorage.getItem(cartReturnStateKey) || 'null');
+  } catch (e) {
+    return null;
   }
 }
 
@@ -227,6 +254,11 @@ const viewSubcategories = document.getElementById('view-subcategories');
 const viewItems = document.getElementById('view-items');
 const viewSearch = document.getElementById('view-search');
 const viewCart = document.getElementById('view-cart');
+const viewFavorites = document.getElementById('view-favorites');
+const viewProfile = document.getElementById('view-profile');
+const favoritesGrid = document.getElementById('favoritesGrid');
+const favoritesEmpty = document.getElementById('favoritesEmpty');
+const mobileCartBadgeEl = document.getElementById('mobileCartBadge');
 
 const searchToggleBtn = document.getElementById('searchToggleBtn');
 const searchContainer = document.getElementById('searchContainer');
@@ -483,6 +515,7 @@ function createItemCard(it, targetContainer) {
   const itDesc = it.desc[currentLang] || it.desc.az || '';
   const itTag = it.tag ? (it.tag[currentLang] || it.tag.az) : '';
   const isSpicy = it.tag && (it.tag.az === 'Spicy' || it.tag.az === 'Veg/Spicy');
+  const isFavorite = favorites.includes(it.id);
 
   // Kateqoriya / Bölmə etiketi (axtarış zamanı aydın görünməsi üçün)
   let parentLabel = '';
@@ -498,6 +531,9 @@ function createItemCard(it, targetContainer) {
            onerror="this.style.display='none';" />
       ${itTag ? `<div class="tag-badge ${isSpicy ? 'badge-spicy' : ''}">${itTag}</div>` : ''}
       ${parentLabel ? `<div class="category-pill">${parentLabel}</div>` : ''}
+      <button class="favorite-btn ${isFavorite ? 'is-favorite' : ''}" type="button" aria-label="${isFavorite ? 'Sevimlilərdən çıxar' : 'Sevimlilərə əlavə et'}" onclick="toggleFavorite(event, '${it.id}')">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.4-8.8 10.2-8.8 10.2S3.2 14.2 3.2 8.8A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.6z"/></svg>
+      </button>
     </div>
     <div class="body">
       <h3 class="name">${itName}</h3>
@@ -518,6 +554,26 @@ function createItemCard(it, targetContainer) {
   `;
 
   targetContainer.appendChild(card);
+}
+
+window.toggleFavorite = function(event, itemId) {
+  event.stopPropagation();
+  favorites = favorites.includes(itemId)
+    ? favorites.filter(id => id !== itemId)
+    : [...favorites, itemId];
+  saveFavoritesToStorage();
+  if (currentView === 'items' && activeSectionId && activeSubcategoryId) {
+    renderCategoryItems();
+  }
+  renderFavorites();
+};
+
+function renderFavorites() {
+  if (!favoritesGrid) return;
+  favoritesGrid.innerHTML = '';
+  const favoriteItems = getAllMenuItems().filter(item => favorites.includes(item.id));
+  favoriteItems.forEach(item => createItemCard(item, favoritesGrid));
+  if (favoritesEmpty) favoritesEmpty.style.display = favoriteItems.length ? 'none' : 'flex';
 }
 
 /**
@@ -630,6 +686,7 @@ function updateCartBadge() {
   const totalCount = Object.values(cart).reduce((sum, entry) => sum + entry.qty, 0);
   if (cartBadgeEl) cartBadgeEl.textContent = totalCount;
   if (fabBadgeEl) fabBadgeEl.textContent = totalCount;
+  if (mobileCartBadgeEl) mobileCartBadgeEl.textContent = totalCount;
 }
 
 function updateCartUI() {
@@ -911,6 +968,12 @@ function buildRouteHash(viewName, params = {}) {
     const q = params.searchQuery || activeSearchQuery;
     return q ? `#search?q=${encodeURIComponent(q)}` : '#search';
   }
+  if (viewName === 'favorites') {
+    return '#favorites';
+  }
+  if (viewName === 'profile') {
+    return '#profile';
+  }
   return '#categories';
 }
 
@@ -923,13 +986,13 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
   }
 
   if (viewName === 'cart' && currentView !== 'cart') {
-    cartReturnState = {
+    saveCartReturnState({
       view: currentView,
       sectionId: activeSectionId,
       subcategoryId: activeSubcategoryId,
       searchQuery: activeSearchQuery,
       scrollY: window.scrollY
-    };
+    });
   }
 
   if (currentView !== viewName) {
@@ -938,6 +1001,11 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
   currentView = viewName;
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.body.classList.toggle('mobile-view-active', viewName === 'favorites' || viewName === 'profile');
+  document.body.classList.toggle('view-home-active', viewName === 'categories');
+  document.querySelectorAll('.mobile-nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.mobileView === viewName);
+  });
 
   if (backHeaderBtn) {
     if (viewName === 'categories') {
@@ -963,6 +1031,11 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
       if (viewItems) viewItems.classList.add('active');
     } else if (viewName === 'search') {
       if (viewSearch) viewSearch.classList.add('active');
+    } else if (viewName === 'favorites') {
+      if (viewFavorites) viewFavorites.classList.add('active');
+      renderFavorites();
+    } else if (viewName === 'profile') {
+      if (viewProfile) viewProfile.classList.add('active');
     }
   }
 
@@ -992,7 +1065,7 @@ window.showView = function(viewName, params = {}) {
 };
 
 window.returnToMenu = function() {
-  const returnState = cartReturnState || {
+  const returnState = cartReturnState || loadCartReturnState() || {
     view: 'categories',
     sectionId: null,
     subcategoryId: null,
@@ -1062,6 +1135,16 @@ function applyRouteFromURL() {
     return;
   }
 
+  if (hash === '#favorites') {
+    navigateTo('favorites', {}, false);
+    return;
+  }
+
+  if (hash === '#profile') {
+    navigateTo('profile', {}, false);
+    return;
+  }
+
   // 3. Yeməklər: #section-1/sub-1-1
   const itemMatch = hash.match(/^#section-([^/]+)\/sub-([^/]+)$/);
   if (itemMatch) {
@@ -1123,7 +1206,7 @@ function handleBackAction() {
   if (window.history.length > 1 && hash && hash !== '#categories') {
     window.history.back();
   } else {
-    if (currentView === 'items' || currentView === 'subcategories' || currentView === 'cart' || currentView === 'search') {
+    if (currentView === 'items' || currentView === 'subcategories' || currentView === 'cart' || currentView === 'search' || currentView === 'favorites' || currentView === 'profile') {
       navigateTo('categories', {}, true);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1354,10 +1437,47 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSearch();
   setupOrderForm();
 
+  document.querySelectorAll('.mobile-nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const view = item.dataset.mobileView;
+      if (view === 'categories') {
+        goToHomePage();
+      } else {
+        navigateTo(view);
+      }
+    });
+  });
+
+  const profileFields = ['profileName', 'profileSurname', 'profilePhone', 'profileEmail'];
+  const savedProfile = JSON.parse(localStorage.getItem('shakii_garden_profile') || '{}');
+  profileFields.forEach(id => {
+    const field = document.getElementById(id);
+    if (field) {
+      field.value = savedProfile[id] || '';
+      field.addEventListener('input', () => {
+        const profile = Object.fromEntries(profileFields.map(fieldId => [fieldId, document.getElementById(fieldId)?.value || '']));
+        localStorage.setItem('shakii_garden_profile', JSON.stringify(profile));
+      });
+    }
+  });
+  const profileForm = document.getElementById('profileForm');
+  const profileStatus = document.getElementById('profileStatus');
+  if (profileForm) {
+    profileForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (profileStatus) {
+        profileStatus.textContent = 'Məlumatlar yadda saxlanıldı';
+        window.setTimeout(() => { profileStatus.textContent = ''; }, 2200);
+      }
+    });
+  }
+
   // İlkin render
   applyTranslations();
   renderCategories();
   renderDrawerSections();
+  renderFavorites();
+  document.body.classList.add('view-home-active');
   updateCartBadge();
 
   // İlkin marşrut yoxlanışı (Deep Linking və Refresh)
