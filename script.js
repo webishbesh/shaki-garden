@@ -342,6 +342,7 @@ const searchToggleBtn = document.getElementById('searchToggleBtn');
 const searchContainer = document.getElementById('searchContainer');
 const searchInput = document.getElementById('searchInput');
 const searchClearBtn = document.getElementById('searchClearBtn');
+const profileDesktopBtn = document.getElementById('profileDesktopBtn');
 const searchHeadingEl = document.getElementById('searchHeading');
 const searchCountEl = document.getElementById('searchCount');
 
@@ -1568,6 +1569,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Axtarış və formalar
   setupSearch();
   setupOrderForm();
+
+  if (profileDesktopBtn) {
+    profileDesktopBtn.addEventListener('click', () => navigateTo('profile'));
+  }
 
   document.querySelectorAll('.mobile-nav-item').forEach(item => {
     item.addEventListener('click', () => {

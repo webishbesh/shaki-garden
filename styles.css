@@ -359,6 +359,10 @@ header.site {
   stroke-width: 1.7;
 }
 
+.desktop-profile-btn {
+  display: flex;
+}
+
 .cart-badge {
   position: absolute;
   top: 0px;
@@ -1742,6 +1746,10 @@ body.view-cart-active .fab {
   .lang-switch {
     font-size: 14px;
     gap: 4px;
+  }
+
+  .desktop-profile-btn {
+    display: none;
   }
 
   .brand {
