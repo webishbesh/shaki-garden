@@ -1476,6 +1476,14 @@ table.cart-table td.col-total {
   color: #fff;
 }
 
+.whatsapp-order-btn {
+  display: block;
+  width: fit-content;
+  margin: 0 auto 10px;
+  padding: 12px 30px;
+  text-decoration: none;
+}
+
 body.owner-dashboard-active {
   background: #f6f7f8;
 }
@@ -1736,6 +1744,12 @@ body.owner-dashboard-active main {
 .owner-chart-card { min-height: 220px; padding: 18px; }
 .owner-chart-card h4, .owner-wide-card h4 { margin: 0; color: #69727b; font-size: 11px; letter-spacing: .08em; }
 .owner-chart-empty { display: grid; place-items: center; min-height: 160px; color: #9aa2a8; font-size: 13px; text-align: center; }
+.owner-series { display: grid; gap: 10px; width: 100%; min-height: 150px; align-content: center; }
+.owner-series-row { display: grid; grid-template-columns: 72px minmax(60px, 1fr) 84px; align-items: center; gap: 9px; color: #75808a; font-size: 10px; }
+.owner-series-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.owner-series-track { height: 8px; overflow: hidden; border-radius: 4px; background: #edf0f2; }
+.owner-series-track i { display: block; height: 100%; min-width: 3px; border-radius: inherit; background: var(--gold); }
+.owner-series-row b { color: #3e464d; font-size: 10px; text-align: right; }
 .owner-wide-card { padding: 18px; }
 .owner-wide-card .owner-chart-empty { min-height: 130px; }
 .owner-detail-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }

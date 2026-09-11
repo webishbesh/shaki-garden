@@ -372,6 +372,7 @@ const modalServiceEl = document.getElementById('modalService');
 const modalTotalEl = document.getElementById('modalTotal');
 const orderCodeValEl = document.getElementById('orderCodeVal');
 const newOrderBtn = document.getElementById('newOrderBtn');
+const whatsappOrderBtn = document.getElementById('whatsappOrderBtn');
 
 let scrollLockCount = 0;
 let lockedScrollY = 0;
@@ -1130,6 +1131,7 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
       if (viewProfile) viewProfile.classList.add('active');
     } else if (viewName === 'owner-dashboard') {
       if (viewOwnerDashboard) viewOwnerDashboard.classList.add('active');
+      connectOwnerDashboardStream();
       loadOwnerDashboard();
     }
   }
@@ -1289,6 +1291,38 @@ function renderOwnerDashboardData(data) {
     element.classList.toggle('positive', positive);
     element.classList.toggle('negative', !positive);
   });
+  Object.entries({
+    today: data.revenue?.today,
+    week: data.revenue?.week,
+    month: data.revenue?.month,
+    total: data.revenue?.total
+  }).forEach(([key, value]) => {
+    const element = document.querySelector(`[data-owner-revenue="${key}"]`);
+    if (element) element.textContent = formatMoney(value);
+  });
+  const renderSeries = (chartKey, rows, valueKey, labelKey, suffix = '') => {
+    const element = document.querySelector(`[data-owner-chart="${chartKey}"]`);
+    if (!element) return;
+    if (!Array.isArray(rows) || !rows.length) {
+      element.textContent = chartKey.includes('revenue') ? 'Bu tarix üçün gəlir məlumatı yoxdur' : 'Bu tarix üçün sifariş yoxdur';
+      return;
+    }
+    const max = Math.max(...rows.map(row => Number(row[valueKey]) || 0), 1);
+    element.classList.remove('owner-chart-empty');
+    element.innerHTML = `<div class="owner-series">${rows.map(row => {
+      const value = Number(row[valueKey]) || 0;
+      const label = String(row[labelKey] || '');
+      return `<div class="owner-series-row"><span>${label}</span><div class="owner-series-track"><i style="width:${Math.max((value / max) * 100, 2)}%"></i></div><b>${value.toFixed(valueKey === 'revenue' ? 2 : 0)}${suffix}</b></div>`;
+    }).join('')}</div>`;
+  };
+  renderSeries('revenue', data.byDay, 'revenue', 'day', ' AZN');
+  renderSeries('revenue-by-day', data.byDay, 'revenue', 'day', ' AZN');
+  renderSeries('orders', data.byDay, 'orders', 'day');
+  renderSeries('statuses', data.statuses, 'count', 'status');
+  renderSeries('hours', data.byHour, 'orders', 'hour');
+  renderSeries('payments', data.payments, 'revenue', 'method', ' AZN');
+  const tableChart = document.querySelector('[data-owner-chart="tables"]');
+  if (tableChart) tableChart.textContent = data.kpis?.activeTables ? `${data.kpis.activeTables} aktiv masa` : 'Məlumat yoxdur';
   const productsBody = document.getElementById('ownerProductsBody');
   if (productsBody && Array.isArray(data.products) && data.products.length) {
     productsBody.innerHTML = data.products.map((product, index) => `<tr><td>${index + 1}</td><td>${product.name || 'Məlumat yoxdur'}</td><td>${product.quantity ?? 'Məlumat yoxdur'}</td><td>${formatMoney(product.revenue)}</td><td>${typeof product.trend === 'number' ? `${product.trend >= 0 ? '↑' : '↓'} ${Math.abs(product.trend).toFixed(1)}%` : 'Məlumat yoxdur'}</td></tr>`).join('');
@@ -1304,6 +1338,12 @@ async function loadOwnerDashboard() {
     const query = new URLSearchParams({ range });
     if (customDate) query.set('date', customDate);
     const response = await fetch(`/api/owner/dashboard?${query.toString()}`, { headers: { Accept: 'application/json' } });
+    if (response.status === 401) {
+      sessionStorage.removeItem('shakii_garden_owner_authenticated');
+      window.history.replaceState(null, '', '#profile');
+      navigateTo('profile', {}, false);
+      return;
+    }
     if (!response.ok) throw new Error(`Dashboard request failed: ${response.status}`);
     const data = await response.json();
     renderOwnerDashboardData(data);
@@ -1314,6 +1354,16 @@ async function loadOwnerDashboard() {
     console.warn('Owner dashboard data is unavailable:', error);
     setOwnerDashboardMessage('Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.', 'error');
   }
+}
+
+function connectOwnerDashboardStream() {
+  if (ownerEventSource || !window.EventSource) return;
+  ownerEventSource = new EventSource('/api/owner/dashboard/stream');
+  ownerEventSource.addEventListener('dashboard-updated', () => loadOwnerDashboard());
+  ownerEventSource.onerror = () => {
+    ownerEventSource?.close();
+    ownerEventSource = null;
+  };
 }
 
 function applyRouteFromURL() {
@@ -1549,28 +1599,54 @@ function setupOrderForm() {
   }
 
   if (orderFormEl) {
-    orderFormEl.addEventListener('submit', (e) => {
+    orderFormEl.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const name = document.getElementById('custName')?.value.trim();
-      const table = document.getElementById('custTable')?.value.trim();
-      const phone = document.getElementById('custPhone')?.value.trim();
-      const notes = document.getElementById('custNotes')?.value.trim();
+      const name = document.getElementById('orderCustomerName')?.value.trim();
+      const table = document.getElementById('orderTableOrAddress')?.value.trim();
+      const phone = document.getElementById('orderCustomerPhone')?.value.trim();
+      const notes = document.getElementById('orderCustomerNotes')?.value.trim();
 
       if (!name || !table) {
         alert(i18n[currentLang].fillRequiredFields);
         return;
       }
 
-      const orderCode = '#MD-' + Math.floor(1000 + Math.random() * 9000);
-      if (orderCodeValEl) orderCodeValEl.textContent = orderCode;
+      const submitButton = orderFormEl.querySelector('[type="submit"]');
+      if (submitButton) submitButton.disabled = true;
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            customerName: name,
+            customerPhone: phone,
+            tableOrAddress: table,
+            notes,
+            items: Object.values(cart).map(entry => ({ itemId: entry.item.id, quantity: entry.qty }))
+          })
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Order request failed');
+        if (orderCodeValEl) orderCodeValEl.textContent = `#${result.orderCode}`;
+        if (whatsappOrderBtn) {
+          whatsappOrderBtn.hidden = !result.whatsappUrl;
+          whatsappOrderBtn.href = result.whatsappUrl || '#';
+          if (result.whatsappUrl) window.open(result.whatsappUrl, '_blank', 'noopener');
+        }
 
-      cart = {};
-      saveCartToStorage();
-      updateCartUI();
+        cart = {};
+        saveCartToStorage();
+        updateCartUI();
 
-      if (orderFormContainer) orderFormContainer.style.display = 'none';
-      if (orderSuccessContainer) orderSuccessContainer.style.display = 'block';
+        if (orderFormContainer) orderFormContainer.style.display = 'none';
+        if (orderSuccessContainer) orderSuccessContainer.style.display = 'block';
+      } catch (error) {
+        console.error(error);
+        alert('Sifarişi göndərmək mümkün olmadı. Zəhmət olmasa yenidən cəhd edin.');
+      } finally {
+        if (submitButton) submitButton.disabled = false;
+      }
     });
   }
 
@@ -1586,6 +1662,7 @@ function setupOrderForm() {
  * 12. BİLDİRİŞ (Toast)
  * ---------------------------------------------------------------------------- */
 let toastTimeout = null;
+let ownerEventSource = null;
 function showToast(msg) {
   if (!toastEl) return;
   toastEl.textContent = msg;
@@ -1700,15 +1777,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const profileForm = document.getElementById('profileForm');
   const profileStatus = document.getElementById('profileStatus');
   if (profileForm) {
-    profileForm.addEventListener('submit', event => {
+    profileForm.addEventListener('submit', async event => {
       event.preventDefault();
       const profile = Object.fromEntries(profileFields.map(fieldId => [fieldId, document.getElementById(fieldId)?.value.trim() || '']));
-      if (isOwnerProfile(profile)) {
-        sessionStorage.setItem('shakii_garden_owner_authenticated', 'true');
-        navigateTo('owner-dashboard');
-        return;
-      }
       localStorage.setItem('shakii_garden_profile', JSON.stringify(profile));
+      if (isOwnerProfile(profile)) {
+        try {
+          const response = await fetch('/api/owner/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({ firstName: profile.profileName, lastName: profile.profileSurname, phone: profile.profilePhone, email: profile.profileEmail })
+          });
+          if (!response.ok) throw new Error('Owner login failed');
+          sessionStorage.setItem('shakii_garden_owner_authenticated', 'true');
+          navigateTo('owner-dashboard');
+          return;
+        } catch (error) {
+          console.error(error);
+          if (profileStatus) profileStatus.textContent = 'Sahibkar panelinə daxil olmaq mümkün olmadı';
+          return;
+        }
+      }
       if (profileStatus) {
         profileStatus.textContent = 'Məlumatlar yadda saxlanıldı';
         window.setTimeout(() => { profileStatus.textContent = ''; }, 2200);
@@ -1732,7 +1821,10 @@ document.addEventListener('DOMContentLoaded', () => {
     loadOwnerDashboard();
   });
   document.getElementById('ownerCustomDate')?.addEventListener('change', loadOwnerDashboard);
-  document.querySelector('[data-owner-action="logout"]')?.addEventListener('click', () => {
+  document.querySelector('[data-owner-action="logout"]')?.addEventListener('click', async () => {
+    await fetch('/api/owner/logout', { method: 'POST' }).catch(() => {});
+    ownerEventSource?.close();
+    ownerEventSource = null;
     sessionStorage.removeItem('shakii_garden_owner_authenticated');
     navigateTo('profile');
   });
