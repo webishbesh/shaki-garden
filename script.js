@@ -334,6 +334,7 @@ const viewSearch = document.getElementById('view-search');
 const viewCart = document.getElementById('view-cart');
 const viewFavorites = document.getElementById('view-favorites');
 const viewProfile = document.getElementById('view-profile');
+const viewOwnerDashboard = document.getElementById('view-owner-dashboard');
 const favoritesGrid = document.getElementById('favoritesGrid');
 const favoritesEmpty = document.getElementById('favoritesEmpty');
 const mobileCartBadgeEl = document.getElementById('mobileCartBadge');
@@ -1053,6 +1054,9 @@ function buildRouteHash(viewName, params = {}) {
   if (viewName === 'profile') {
     return '#profile';
   }
+  if (viewName === 'owner-dashboard') {
+    return '#owner-dashboard';
+  }
   return '#categories';
 }
 
@@ -1086,6 +1090,7 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
 
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.body.classList.toggle('mobile-view-active', viewName === 'favorites' || viewName === 'profile');
+  document.body.classList.toggle('owner-dashboard-active', viewName === 'owner-dashboard');
   document.body.classList.toggle('view-home-active', viewName === 'categories');
   const mobileActiveView = ['categories', 'subcategories', 'items', 'search'].includes(viewName)
     ? 'categories'
@@ -1123,6 +1128,9 @@ function navigateTo(viewName, params = {}, pushHistory = true, restoreScroll = f
       renderFavorites();
     } else if (viewName === 'profile') {
       if (viewProfile) viewProfile.classList.add('active');
+    } else if (viewName === 'owner-dashboard') {
+      if (viewOwnerDashboard) viewOwnerDashboard.classList.add('active');
+      loadOwnerDashboard();
     }
   }
 
@@ -1226,6 +1234,88 @@ window.returnToMenu = function() {
 /**
  * URL Hash-dən tətbiq daxili marşrutu tətbiq edir (Deep Linking və popstate üçün)
  */
+function normalizeOwnerValue(value) {
+  return String(value || '').trim().toLocaleLowerCase('az-AZ').replace(/\s+/g, ' ');
+}
+
+function isOwnerProfile(profile) {
+  return normalizeOwnerValue(profile.profileName) === 'mehman'
+    && normalizeOwnerValue(profile.profileSurname) === 'naghiyev'
+    && String(profile.profilePhone || '').replace(/\D/g, '') === '0509788184'
+    && normalizeOwnerValue(profile.profileEmail) === 'webish.besh@gmail.com';
+}
+
+function setOwnerDashboardMessage(message, type = 'info') {
+  const messageEl = document.getElementById('ownerDataMessage');
+  if (!messageEl) return;
+  messageEl.hidden = !message;
+  messageEl.className = `owner-data-message ${type}`;
+  messageEl.textContent = message;
+}
+
+function clearOwnerDashboardData() {
+  document.querySelectorAll('[data-owner-kpi]').forEach(element => { element.textContent = 'Məlumat yoxdur'; });
+  document.querySelectorAll('[data-owner-revenue]').forEach(element => { element.textContent = 'Məlumat yoxdur'; });
+  document.querySelectorAll('[data-owner-trend]').forEach(element => { element.textContent = 'Müqayisə üçün kifayət qədər məlumat yoxdur'; });
+  document.querySelectorAll('[data-owner-chart]').forEach(element => {
+    element.textContent = element.dataset.ownerChart === 'revenue' || element.dataset.ownerChart === 'revenue-by-day'
+      ? 'Bu tarix üçün gəlir məlumatı yoxdur'
+      : 'Bu tarix üçün sifariş yoxdur';
+  });
+  const productsBody = document.getElementById('ownerProductsBody');
+  if (productsBody) productsBody.innerHTML = '<tr><td colspan="5" class="owner-table-empty">Satış məlumatı yoxdur</td></tr>';
+}
+
+function renderOwnerDashboardData(data) {
+  if (!data || typeof data !== 'object') return;
+  const kpis = data.kpis || {};
+  const formatMoney = value => typeof value === 'number' ? `${value.toFixed(2)} AZN` : 'Məlumat yoxdur';
+  const formatValue = value => value === 0 || value ? String(value) : 'Məlumat yoxdur';
+  const values = {
+    revenue: formatMoney(kpis.revenue),
+    orders: formatValue(kpis.orders),
+    averageOrder: formatMoney(kpis.averageOrder),
+    activeTables: formatValue(kpis.activeTables)
+  };
+  Object.entries(values).forEach(([key, value]) => {
+    const element = document.querySelector(`[data-owner-kpi="${key}"]`);
+    if (element) element.textContent = value;
+  });
+  Object.entries(data.trends || {}).forEach(([key, trend]) => {
+    const element = document.querySelector(`[data-owner-trend="${key}"]`);
+    if (!element || typeof trend?.percentage !== 'number') return;
+    const positive = trend.percentage >= 0;
+    element.textContent = `${positive ? '↑' : '↓'} ${Math.abs(trend.percentage).toFixed(1)}% ${positive ? 'artım' : 'azalma'}`;
+    element.classList.toggle('positive', positive);
+    element.classList.toggle('negative', !positive);
+  });
+  const productsBody = document.getElementById('ownerProductsBody');
+  if (productsBody && Array.isArray(data.products) && data.products.length) {
+    productsBody.innerHTML = data.products.map((product, index) => `<tr><td>${index + 1}</td><td>${product.name || 'Məlumat yoxdur'}</td><td>${product.quantity ?? 'Məlumat yoxdur'}</td><td>${formatMoney(product.revenue)}</td><td>${typeof product.trend === 'number' ? `${product.trend >= 0 ? '↑' : '↓'} ${Math.abs(product.trend).toFixed(1)}%` : 'Məlumat yoxdur'}</td></tr>`).join('');
+  }
+}
+
+async function loadOwnerDashboard() {
+  clearOwnerDashboardData();
+  setOwnerDashboardMessage('Məlumatlar yüklənir...', 'loading');
+  const range = document.getElementById('ownerDateRange')?.value || 'today';
+  const customDate = document.getElementById('ownerCustomDate')?.value || '';
+  try {
+    const query = new URLSearchParams({ range });
+    if (customDate) query.set('date', customDate);
+    const response = await fetch(`/api/owner/dashboard?${query.toString()}`, { headers: { Accept: 'application/json' } });
+    if (!response.ok) throw new Error(`Dashboard request failed: ${response.status}`);
+    const data = await response.json();
+    renderOwnerDashboardData(data);
+    const updatedElement = document.getElementById('ownerLastUpdated');
+    if (updatedElement) updatedElement.textContent = `Son yenilənmə: ${new Date().toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' })}`;
+    setOwnerDashboardMessage('', 'info');
+  } catch (error) {
+    console.warn('Owner dashboard data is unavailable:', error);
+    setOwnerDashboardMessage('Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.', 'error');
+  }
+}
+
 function applyRouteFromURL() {
   const hash = window.location.hash || '';
 
@@ -1262,6 +1352,16 @@ function applyRouteFromURL() {
 
   if (hash === '#profile') {
     navigateTo('profile', {}, false);
+    return;
+  }
+
+  if (hash === '#owner-dashboard') {
+    if (sessionStorage.getItem('shakii_garden_owner_authenticated') === 'true') {
+      navigateTo('owner-dashboard', {}, false);
+    } else {
+      window.history.replaceState(null, '', '#profile');
+      navigateTo('profile', {}, false);
+    }
     return;
   }
 
@@ -1602,12 +1702,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (profileForm) {
     profileForm.addEventListener('submit', event => {
       event.preventDefault();
+      const profile = Object.fromEntries(profileFields.map(fieldId => [fieldId, document.getElementById(fieldId)?.value.trim() || '']));
+      if (isOwnerProfile(profile)) {
+        sessionStorage.setItem('shakii_garden_owner_authenticated', 'true');
+        navigateTo('owner-dashboard');
+        return;
+      }
+      localStorage.setItem('shakii_garden_profile', JSON.stringify(profile));
       if (profileStatus) {
         profileStatus.textContent = 'Məlumatlar yadda saxlanıldı';
         window.setTimeout(() => { profileStatus.textContent = ''; }, 2200);
       }
     });
   }
+
+  document.querySelectorAll('[data-owner-section]').forEach(button => {
+    button.addEventListener('click', () => {
+      const section = button.dataset.ownerSection;
+      document.querySelectorAll('[data-owner-section]').forEach(item => item.classList.toggle('active', item === button));
+      document.querySelectorAll('[data-owner-panel]').forEach(panel => { panel.hidden = panel.dataset.ownerPanel !== section; });
+      const title = document.getElementById('ownerDashboardTitle');
+      if (title) title.textContent = section === 'revenue' ? 'Gəlir' : section === 'products' ? 'Ən çox satılan məhsullar' : 'Statistika';
+    });
+  });
+  document.getElementById('ownerRefreshBtn')?.addEventListener('click', loadOwnerDashboard);
+  document.getElementById('ownerDateRange')?.addEventListener('change', event => {
+    const customDate = document.getElementById('ownerCustomDate');
+    if (customDate) customDate.hidden = event.target.value !== 'custom';
+    loadOwnerDashboard();
+  });
+  document.getElementById('ownerCustomDate')?.addEventListener('change', loadOwnerDashboard);
+  document.querySelector('[data-owner-action="logout"]')?.addEventListener('click', () => {
+    sessionStorage.removeItem('shakii_garden_owner_authenticated');
+    navigateTo('profile');
+  });
 
   // İlkin render
   applyTranslations();

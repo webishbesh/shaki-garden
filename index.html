@@ -274,6 +274,92 @@
           <span class="profile-status" id="profileStatus" role="status"></span>
         </form>
       </section>
+
+      <section id="view-owner-dashboard" class="view owner-dashboard-view">
+        <aside class="owner-sidebar">
+          <div class="owner-sidebar-brand">
+            <span class="owner-sidebar-kicker">SAHİBKAR</span>
+            <strong>Shakii Garden</strong>
+          </div>
+          <nav class="owner-sidebar-nav" aria-label="Sahibkar paneli bölmələri">
+            <button class="owner-nav-item active" type="button" data-owner-section="statistics"><span class="owner-nav-icon">▦</span>STATİSTİKA</button>
+            <button class="owner-nav-item" type="button" data-owner-section="revenue"><span class="owner-nav-icon">₼</span>GƏLİR</button>
+            <button class="owner-nav-item" type="button" data-owner-section="products"><span class="owner-nav-icon">☷</span>ƏN ÇOX SATILAN MƏHSULLAR</button>
+          </nav>
+          <div class="owner-sidebar-footer">
+            <span>Restaurant ID</span>
+            <strong data-owner-restaurant-id>Məlumat yoxdur</strong>
+            <span>Current user</span>
+            <strong>Sahibkar</strong>
+            <button type="button" class="owner-side-action" data-owner-action="settings">⚙ Ayarlar</button>
+            <button type="button" class="owner-side-action" data-owner-action="logout">↪ Çıxış</button>
+          </div>
+        </aside>
+
+        <div class="owner-dashboard-main">
+          <header class="owner-dashboard-header">
+            <div>
+              <span class="owner-eyebrow">SAHİBKAR PANELİ</span>
+              <h2 id="ownerDashboardTitle">Statistika</h2>
+              <p><span>Shakii Garden</span><span class="owner-header-dot">•</span><span id="ownerDashboardDate"></span></p>
+            </div>
+            <div class="owner-header-actions">
+              <span class="owner-updated" id="ownerLastUpdated">Son yenilənmə: məlumat yoxdur</span>
+              <button type="button" class="owner-refresh-btn" id="ownerRefreshBtn">↻ Yenilə</button>
+            </div>
+          </header>
+
+          <div class="owner-dashboard-toolbar">
+            <label for="ownerDateRange">Tarix</label>
+            <select id="ownerDateRange">
+              <option value="today">BU GÜN</option>
+              <option value="yesterday">DÜNƏN</option>
+              <option value="7d">SON 7 GÜN</option>
+              <option value="30d">SON 30 GÜN</option>
+              <option value="week">BU HƏFTƏ</option>
+              <option value="month">BU AY</option>
+              <option value="custom">FƏRDİ TARİX</option>
+            </select>
+            <input type="date" id="ownerCustomDate" aria-label="Fərdi tarix" hidden>
+          </div>
+
+          <div class="owner-data-message" id="ownerDataMessage" role="status" hidden></div>
+
+          <div class="owner-kpi-grid" aria-label="Əsas göstəricilər">
+            <article class="owner-kpi-card"><span>BU GÜNÜN GƏLİRİ</span><strong data-owner-kpi="revenue">Məlumat yoxdur</strong><small data-owner-trend="revenue">Müqayisə üçün kifayət qədər məlumat yoxdur</small></article>
+            <article class="owner-kpi-card"><span>SİFARİŞLƏR</span><strong data-owner-kpi="orders">Məlumat yoxdur</strong><small data-owner-trend="orders">Müqayisə üçün kifayət qədər məlumat yoxdur</small></article>
+            <article class="owner-kpi-card"><span>ORTA ÇEK</span><strong data-owner-kpi="averageOrder">Məlumat yoxdur</strong><small data-owner-trend="averageOrder">Müqayisə üçün kifayət qədər məlumat yoxdur</small></article>
+            <article class="owner-kpi-card"><span>AKTİV MASALAR</span><strong data-owner-kpi="activeTables">Məlumat yoxdur</strong><small data-owner-trend="activeTables">Real data gözlənilir</small></article>
+          </div>
+
+          <div class="owner-section-panel" data-owner-panel="statistics">
+            <div class="owner-panel-heading"><div><span class="owner-eyebrow">STATİSTİKA</span><h3>Sifariş və gəlir analitikası</h3></div></div>
+            <div class="owner-chart-grid">
+              <article class="owner-chart-card"><h4>GƏLİR QRAFİKİ</h4><div class="owner-chart-empty" data-owner-chart="revenue">Bu tarix üçün gəlir məlumatı yoxdur</div></article>
+              <article class="owner-chart-card"><h4>SİFARİŞLƏR QRAFİKİ</h4><div class="owner-chart-empty" data-owner-chart="orders">Bu tarix üçün sifariş yoxdur</div></article>
+              <article class="owner-chart-card"><h4>MASA STATİSTİKASI</h4><div class="owner-chart-empty" data-owner-chart="tables">Məlumat yoxdur</div></article>
+              <article class="owner-chart-card"><h4>SİFARİŞ STATUSLARI</h4><div class="owner-chart-empty" data-owner-chart="statuses">Bu tarix üçün sifariş yoxdur</div></article>
+            </div>
+            <article class="owner-wide-card"><h4>ƏN ÇOX SİFARİŞ VERİLƏN SAATLAR</h4><div class="owner-chart-empty" data-owner-chart="hours">Bu tarix üçün sifariş yoxdur</div></article>
+          </div>
+
+          <div class="owner-section-panel" data-owner-panel="revenue" hidden>
+            <div class="owner-panel-heading"><div><span class="owner-eyebrow">GƏLİR</span><h3>Gəlir analitikası</h3></div></div>
+            <div class="owner-revenue-grid">
+              <article class="owner-mini-card"><span>BU GÜN</span><strong data-owner-revenue="today">Məlumat yoxdur</strong></article>
+              <article class="owner-mini-card"><span>BU HƏFTƏ</span><strong data-owner-revenue="week">Məlumat yoxdur</strong></article>
+              <article class="owner-mini-card"><span>BU AY</span><strong data-owner-revenue="month">Məlumat yoxdur</strong></article>
+              <article class="owner-mini-card"><span>ÜMUMİ GƏLİR</span><strong data-owner-revenue="total">Məlumat yoxdur</strong></article>
+            </div>
+            <div class="owner-detail-grid"><article class="owner-wide-card"><h4>GƏLİRİN GÜNLƏRƏ GÖRƏ PAYLANMASI</h4><div class="owner-chart-empty" data-owner-chart="revenue-by-day">Bu tarix üçün gəlir məlumatı yoxdur</div></article><article class="owner-wide-card"><h4>ÖDƏNİŞ ÜSULLARI</h4><div class="owner-chart-empty" data-owner-chart="payments">Ödəniş məlumatı yoxdur</div></article></div>
+          </div>
+
+          <div class="owner-section-panel" data-owner-panel="products" hidden>
+            <div class="owner-panel-heading"><div><span class="owner-eyebrow">ƏN ÇOX SATILAN MƏHSULLAR</span><h3>Məhsul satışları</h3></div></div>
+            <div class="owner-products-table-wrap"><table class="owner-products-table"><thead><tr><th>SIRA</th><th>MƏHSUL</th><th>SATILAN SAY</th><th>GƏLİR</th><th>TREND</th></tr></thead><tbody id="ownerProductsBody"><tr><td colspan="5" class="owner-table-empty">Satış məlumatı yoxdur</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- Mobil tətbiq tipli alt naviqasiya -->
